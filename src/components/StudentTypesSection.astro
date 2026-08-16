@@ -1,0 +1,40 @@
+---
+import SectionHeading from "./SectionHeading.astro";
+import { studentTypes } from "../data/studentTypes";
+---
+
+<section class="section" aria-labelledby="student-types-heading">
+  <div class="container">
+    <SectionHeading
+      title="こんな生徒におすすめ"
+      description="勉強が苦手な子だけでなく、幅広いタイプの生徒に対応しています。"
+      id="student-types-heading"
+    />
+    <div class="grid grid--3">
+      {
+        studentTypes.map((type) => (
+          <article class="card student-type-card">
+            <h3>{type.title}</h3>
+            <p>{type.description}</p>
+          </article>
+        ))
+      }
+    </div>
+  </div>
+</section>
+
+<style>
+  .student-type-card h3 {
+    font-size: 1.05rem;
+    font-weight: 700;
+    line-height: 1.6;
+    color: var(--color-brand-dark);
+  }
+
+  .student-type-card p {
+    margin-top: 12px;
+    font-size: 0.9rem;
+    color: var(--color-text-muted);
+    line-height: 1.85;
+  }
+</style>

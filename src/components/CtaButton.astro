@@ -1,0 +1,49 @@
+---
+// LINE相談CTAボタン（共通コンポーネント）
+// -----------------------------------------------------------------------
+// リンク先は site.lineUrl の1箇所のみを参照しているため、
+// site.config.mjs の LINE_URL を書き換えるだけで、サイト内すべての
+// このボタンのリンク先が一括で更新されます。
+import { site } from "../config/site";
+
+interface Props {
+  label?: string;
+  size?: "md" | "lg";
+  variant?: "solid" | "outline";
+  block?: boolean;
+  class?: string;
+}
+
+const {
+  label = "LINEで家庭教師について相談する",
+  size = "md",
+  variant = "solid",
+  block = false,
+  class: className = "",
+} = Astro.props;
+
+const classes = [
+  "cta-button",
+  size === "lg" ? "cta-button--lg" : "",
+  variant === "outline" ? "cta-button--outline" : "",
+  block ? "cta-button--block" : "",
+  className,
+]
+  .filter(Boolean)
+  .join(" ");
+---
+
+<a
+  href={site.lineUrl}
+  class={classes}
+  target="_blank"
+  rel="noopener noreferrer"
+  aria-label={`${label}（LINEアプリが開きます）`}
+>
+  <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" focusable="false">
+    <path
+      d="M12 3C6.9 3 2.75 6.44 2.75 10.68c0 3.8 3.28 6.98 7.72 7.58.3.06.71.2.81.46.09.24.06.6.03.85l-.13.8c-.04.24-.19.94.83.51 1.02-.42 5.47-3.22 7.46-5.52 1.38-1.51 2.03-3.04 2.03-4.68C21.5 6.44 17.35 3 12.25 3z"
+    ></path>
+  </svg>
+  <span>{label}</span>
+</a>

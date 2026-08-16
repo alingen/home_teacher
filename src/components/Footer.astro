@@ -1,0 +1,93 @@
+---
+import { site } from "../config/site";
+
+const currentYear = new Date().getFullYear();
+
+const navLinks = [
+  { href: "#worries-heading", label: "お悩み" },
+  { href: "#student-types-heading", label: "こんな生徒に" },
+  { href: "#subjects-heading", label: "対応科目・学年" },
+  { href: "#profile-heading", label: "講師プロフィール" },
+  { href: "#area-heading", label: "対応エリア" },
+  { href: "#pricing-heading", label: "料金" },
+  { href: "#faq-heading", label: "FAQ" },
+];
+---
+
+<footer class="site-footer">
+  <div class="container site-footer__inner">
+    <div>
+      <p class="site-footer__name">{site.name}</p>
+      <p class="site-footer__desc">福岡市・地下鉄空港線沿線を中心に伺う、個人の家庭教師です。</p>
+    </div>
+
+    <nav aria-label="ページ内リンク">
+      <ul class="site-footer__nav">
+        {
+          navLinks.map((link) => (
+            <li>
+              <a href={link.href}>{link.label}</a>
+            </li>
+          ))
+        }
+      </ul>
+    </nav>
+
+    <p class="site-footer__copy">&copy; {currentYear} {site.name}</p>
+  </div>
+</footer>
+
+<style>
+  .site-footer {
+    background: var(--color-bg-alt);
+    border-top: 1px solid var(--color-border);
+    padding-block: 48px;
+    /* 下部固定CTAバーに隠れないよう余白を確保（モバイル） */
+    padding-bottom: calc(48px + 76px);
+  }
+
+  @media (min-width: 900px) {
+    .site-footer {
+      padding-bottom: 48px;
+    }
+  }
+
+  .site-footer__inner {
+    display: grid;
+    gap: 28px;
+    text-align: center;
+  }
+
+  .site-footer__name {
+    font-weight: 700;
+    font-size: 1rem;
+  }
+
+  .site-footer__desc {
+    margin-top: 6px;
+    font-size: 0.82rem;
+    color: var(--color-text-muted);
+  }
+
+  .site-footer__nav {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 10px 20px;
+  }
+
+  .site-footer__nav a {
+    font-size: 0.82rem;
+    text-decoration: none;
+    color: var(--color-text-muted);
+  }
+
+  .site-footer__nav a:hover {
+    color: var(--color-brand-dark);
+  }
+
+  .site-footer__copy {
+    font-size: 0.75rem;
+    color: var(--color-text-muted);
+  }
+</style>

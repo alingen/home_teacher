@@ -1,0 +1,134 @@
+---
+import CtaButton from "./CtaButton.astro";
+
+const heroPoints = [
+  "中学生を中心に、小学生・高校生にも対応",
+  "数学・英語を中心に指導（他教科も応相談）",
+  "姪浜〜東比恵を中心に訪問",
+  "まずは相談だけでも大丈夫です",
+];
+---
+
+<section class="hero" id="top" aria-label="ファーストビュー">
+  <div class="container hero__inner">
+    <p class="hero__eyebrow">福岡市・地下鉄空港線沿線の個人家庭教師</p>
+    <h1 class="hero__title">
+      勉強が苦手な子から、<br class="hero__break" />もっと成績を伸ばしたい子まで。
+    </h1>
+    <p class="hero__lead">
+      福岡市・地下鉄空港線沿線（姪浜〜東比恵）を中心にご自宅へ伺う、個人の家庭教師です。塾についていけない、何から始めればいいかわからない、というところからでもご相談ください。
+    </p>
+
+    <ul class="hero__points">
+      {
+        heroPoints.map((point) => (
+          <li>
+            <svg viewBox="0 0 20 20" aria-hidden="true" focusable="false">
+              <path
+                d="M4 10.5l3.5 3.5L16 5"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              />
+            </svg>
+            <span>{point}</span>
+          </li>
+        ))
+      }
+    </ul>
+
+    <div class="hero__cta">
+      <CtaButton size="lg" />
+      <p class="cta-note">無理な勧誘は一切行いません。まずはお話だけでも歓迎です。</p>
+    </div>
+  </div>
+</section>
+
+<style>
+  .hero {
+    padding-block: 48px 56px;
+    background: linear-gradient(180deg, var(--color-brand-tint) 0%, #ffffff 78%);
+  }
+
+  @media (min-width: 768px) {
+    .hero {
+      padding-block: 72px 80px;
+    }
+  }
+
+  .hero__inner {
+    max-width: 720px;
+  }
+
+  .hero__eyebrow {
+    display: inline-block;
+    font-size: 0.82rem;
+    font-weight: 700;
+    color: var(--color-brand-dark);
+    background: #ffffff;
+    border: 1px solid var(--color-brand);
+    padding: 5px 14px;
+    border-radius: 999px;
+    margin-bottom: 20px;
+  }
+
+  .hero__title {
+    font-size: clamp(1.7rem, 5.5vw, 2.5rem);
+    font-weight: 700;
+    line-height: 1.55;
+    letter-spacing: 0.01em;
+    color: var(--color-text);
+  }
+
+  .hero__break {
+    display: none;
+  }
+
+  @media (min-width: 480px) {
+    .hero__break {
+      display: inline;
+    }
+  }
+
+  .hero__lead {
+    margin-top: 20px;
+    font-size: 1rem;
+    color: var(--color-text-muted);
+    line-height: 1.9;
+    max-width: 56ch;
+  }
+
+  .hero__points {
+    margin-top: 28px;
+    display: grid;
+    gap: 12px;
+  }
+
+  @media (min-width: 560px) {
+    .hero__points {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+
+  .hero__points li {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    font-size: 0.92rem;
+    font-weight: 500;
+  }
+
+  .hero__points svg {
+    flex-shrink: 0;
+    width: 20px;
+    height: 20px;
+    margin-top: 1px;
+    color: var(--color-brand);
+  }
+
+  .hero__cta {
+    margin-top: 36px;
+  }
+</style>

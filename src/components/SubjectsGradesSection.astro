@@ -1,0 +1,89 @@
+---
+import SectionHeading from "./SectionHeading.astro";
+import { subjects, grades } from "../data/subjects";
+---
+
+<section class="section section--alt" aria-labelledby="subjects-heading">
+  <div class="container">
+    <SectionHeading
+      title="対応科目・学年"
+      description="中学生の数学・英語を中心に、小学生・高校生や他教科もご相談いただけます。"
+      id="subjects-heading"
+    />
+
+    <div class="subjects-block">
+      <h3 class="subjects-block__label">対応科目</h3>
+      <div class="grid grid--3">
+        {
+          subjects.map((subject) => (
+            <div class={`card subject-card ${subject.isMain ? "card--highlight" : ""}`}>
+              {subject.isMain && <span class="badge">メイン科目</span>}
+              <h4>{subject.name}</h4>
+              <p>{subject.description}</p>
+            </div>
+          ))
+        }
+      </div>
+    </div>
+
+    <div class="subjects-block">
+      <h3 class="subjects-block__label">対応学年</h3>
+      <div class="grid grid--3">
+        {
+          grades.map((grade) => (
+            <div class={`card subject-card ${grade.isMain ? "card--highlight subject-card--main" : ""}`}>
+              {grade.isMain && <span class="badge">メイン対象</span>}
+              <h4>{grade.name}</h4>
+              <p>{grade.description}</p>
+            </div>
+          ))
+        }
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+  .subjects-block {
+    margin-top: 32px;
+  }
+
+  .subjects-block:first-of-type {
+    margin-top: 0;
+  }
+
+  .subjects-block__label {
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: var(--color-text-muted);
+    margin-bottom: 14px;
+    letter-spacing: 0.03em;
+  }
+
+  .subject-card {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .subject-card h4 {
+    font-size: 1.1rem;
+    font-weight: 700;
+  }
+
+  .subject-card p {
+    font-size: 0.88rem;
+    color: var(--color-text-muted);
+    line-height: 1.8;
+  }
+
+  .subject-card--main {
+    transform: scale(1.02);
+  }
+
+  @media (max-width: 639px) {
+    .subject-card--main {
+      transform: none;
+    }
+  }
+</style>

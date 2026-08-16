@@ -1,0 +1,49 @@
+---
+import CtaButton from "./CtaButton.astro";
+---
+
+<section class="final-cta" aria-labelledby="final-cta-heading">
+  <div class="container final-cta__inner">
+    <h2 id="final-cta-heading">まずはお子さまの勉強についてご相談ください</h2>
+    <p>
+      学年・科目・お悩みなど、決まっていないことがあってもかまいません。LINEで気軽にメッセージを送るところから始めてみませんか。
+    </p>
+    <CtaButton size="lg" />
+    <p class="cta-note">相談・お問い合わせは無料です。無理な勧誘は行いません。</p>
+  </div>
+</section>
+
+<style>
+  .final-cta {
+    padding-block: 72px;
+    background: var(--color-brand);
+    color: #fff;
+    text-align: center;
+  }
+
+  .final-cta__inner {
+    max-width: 560px;
+  }
+
+  .final-cta h2 {
+    font-size: clamp(1.4rem, 4.5vw, 1.9rem);
+    font-weight: 700;
+    line-height: 1.6;
+  }
+
+  .final-cta p {
+    margin-top: 16px;
+    font-size: 0.92rem;
+    line-height: 1.9;
+    opacity: 0.92;
+  }
+
+  .final-cta :global(.cta-button) {
+    margin-top: 28px;
+  }
+
+  .final-cta .cta-note {
+    color: #fff;
+    opacity: 0.85;
+  }
+</style>

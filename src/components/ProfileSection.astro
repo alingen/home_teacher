@@ -1,0 +1,176 @@
+---
+// 講師プロフィールセクション。
+// 表示内容はすべて src/data/profile.ts から取得しているので、
+// 写真差し替え・経歴の追記などは data ファイルの編集のみで完結します。
+import SectionHeading from "./SectionHeading.astro";
+import { profile } from "../data/profile";
+---
+
+<section class="section section--alt" aria-labelledby="profile-heading">
+  <div class="container profile">
+    <SectionHeading
+      eyebrow="講師プロフィール"
+      title="担当する講師について"
+      id="profile-heading"
+    />
+
+    <div class="profile__card">
+      <div class="profile__photo-wrap">
+        {
+          profile.photoSrc ? (
+            <img src={profile.photoSrc} alt={profile.photoAlt} class="profile__photo" />
+          ) : (
+            <div class="profile__photo profile__photo--placeholder" role="img" aria-label={profile.photoAlt}>
+              <svg viewBox="0 0 24 24" fill="none" aria-hidden="true" focusable="false">
+                <circle cx="12" cy="8.5" r="3.6" stroke="currentColor" stroke-width="1.6" />
+                <path
+                  d="M4.5 19.2c1.4-3.4 4.4-5.2 7.5-5.2s6.1 1.8 7.5 5.2"
+                  stroke="currentColor"
+                  stroke-width="1.6"
+                  stroke-linecap="round"
+                />
+              </svg>
+              <span>写真準備中</span>
+            </div>
+          )
+        }
+      </div>
+
+      <div class="profile__body">
+        <p class="profile__name">{profile.name}</p>
+        <p class="profile__catchphrase">{profile.catchphrase}</p>
+
+        <div class="profile__block">
+          <h3>経歴</h3>
+          {profile.bioParagraphs.map((paragraph) => <p>{paragraph}</p>)}
+        </div>
+
+        <div class="profile__block">
+          <h3>指導への考え方</h3>
+          <p>{profile.teachingPhilosophy}</p>
+        </div>
+
+        <div class="profile__block">
+          <h3>得意科目</h3>
+          <ul class="profile__subjects">
+            {profile.strongSubjects.map((subject) => <li>{subject}</li>)}
+          </ul>
+          <p>{profile.strongSubjectsNote}</p>
+        </div>
+
+        <div class="profile__block">
+          <h3>趣味・人柄</h3>
+          <p>{profile.personality}</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+  .profile__card {
+    display: grid;
+    gap: 32px;
+    background: #fff;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-lg);
+    padding: 28px;
+    box-shadow: var(--shadow-card);
+  }
+
+  @media (min-width: 720px) {
+    .profile__card {
+      grid-template-columns: 220px 1fr;
+      padding: 40px;
+    }
+  }
+
+  .profile__photo-wrap {
+    display: flex;
+    justify-content: center;
+  }
+
+  .profile__photo {
+    width: 180px;
+    height: 180px;
+    border-radius: 50%;
+    object-fit: cover;
+  }
+
+  @media (min-width: 720px) {
+    .profile__photo {
+      width: 100%;
+      height: auto;
+      aspect-ratio: 1 / 1;
+    }
+  }
+
+  .profile__photo--placeholder {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    background: var(--color-bg-alt);
+    color: var(--color-text-muted);
+    border: 1.5px dashed var(--color-border);
+  }
+
+  .profile__photo--placeholder svg {
+    width: 44px;
+    height: 44px;
+  }
+
+  .profile__photo--placeholder span {
+    font-size: 0.78rem;
+  }
+
+  .profile__name {
+    font-size: 1.15rem;
+    font-weight: 700;
+  }
+
+  .profile__catchphrase {
+    margin-top: 4px;
+    color: var(--color-brand-dark);
+    font-size: 0.92rem;
+    font-weight: 600;
+  }
+
+  .profile__block {
+    margin-top: 22px;
+  }
+
+  .profile__block h3 {
+    font-size: 0.82rem;
+    font-weight: 700;
+    color: var(--color-text-muted);
+    letter-spacing: 0.03em;
+    margin-bottom: 8px;
+  }
+
+  .profile__block p {
+    font-size: 0.9rem;
+    line-height: 1.85;
+    color: var(--color-text);
+  }
+
+  .profile__block p + p {
+    margin-top: 8px;
+  }
+
+  .profile__subjects {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 8px;
+  }
+
+  .profile__subjects li {
+    background: var(--color-brand-tint);
+    color: var(--color-brand-dark);
+    font-size: 0.82rem;
+    font-weight: 700;
+    padding: 4px 12px;
+    border-radius: 999px;
+  }
+</style>

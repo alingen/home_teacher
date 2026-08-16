@@ -1,0 +1,76 @@
+---
+import SectionHeading from "./SectionHeading.astro";
+import { flowSteps } from "../data/flow";
+---
+
+<section class="section" aria-labelledby="flow-heading">
+  <div class="container">
+    <SectionHeading
+      title="利用開始までの流れ"
+      description="体験授業を受けたからといって、必ず契約しなければならないわけではありません。"
+      id="flow-heading"
+    />
+
+    <ol class="flow-list">
+      {
+        flowSteps.map((step) => (
+          <li class="flow-list__item">
+            <span class="flow-list__step" aria-hidden="true">
+              STEP {step.step}
+            </span>
+            <h3>{step.title}</h3>
+            <p>{step.description}</p>
+          </li>
+        ))
+      }
+    </ol>
+  </div>
+</section>
+
+<style>
+  .flow-list {
+    display: grid;
+    gap: 16px;
+    max-width: 720px;
+    margin-inline: auto;
+    counter-reset: flow;
+  }
+
+  @media (min-width: 640px) {
+    .flow-list {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+
+  .flow-list__item {
+    position: relative;
+    background: #fff;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-lg);
+    padding: 22px 22px 20px;
+  }
+
+  .flow-list__step {
+    display: inline-block;
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    color: var(--color-brand);
+    background: var(--color-brand-tint);
+    padding: 3px 10px;
+    border-radius: 999px;
+    margin-bottom: 10px;
+  }
+
+  .flow-list__item h3 {
+    font-size: 1rem;
+    font-weight: 700;
+  }
+
+  .flow-list__item p {
+    margin-top: 8px;
+    font-size: 0.87rem;
+    color: var(--color-text-muted);
+    line-height: 1.8;
+  }
+</style>

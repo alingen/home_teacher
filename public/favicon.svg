@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="favicon">
+  <rect width="64" height="64" rx="16" fill="#1f6f63" />
+  <path
+    d="M18 24c4.5-3 9.5-3 14 0v20c-4.5-3-9.5-3-14 0V24z"
+    fill="#ffffff"
+  />
+  <path
+    d="M46 24c-4.5-3-9.5-3-14 0v20c4.5-3 9.5-3 14 0V24z"
+    fill="#ffffff"
+    fill-opacity="0.75"
+  />
+</svg>

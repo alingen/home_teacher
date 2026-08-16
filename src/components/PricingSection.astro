@@ -1,0 +1,156 @@
+---
+// 料金の表示内容はすべて src/data/pricing.ts から取得しています。
+// 金額を変更したい場合は、このコンポーネントではなく data ファイルを編集してください。
+import SectionHeading from "./SectionHeading.astro";
+import CtaButton from "./CtaButton.astro";
+import { trialOffer, pricingPlans, pricingNotes } from "../data/pricing";
+---
+
+<section class="section section--alt" aria-labelledby="pricing-heading">
+  <div class="container">
+    <SectionHeading
+      eyebrow="料金"
+      title="料金プラン"
+      description="学年・回数によって金額の目安は変わります。詳しくはご相談時にご案内します。"
+      id="pricing-heading"
+    />
+
+    <div class="pricing-trial">
+      <div>
+        <span class="badge">{trialOffer.label}</span>
+        <p class="pricing-trial__desc">{trialOffer.description}</p>
+      </div>
+      <div class="pricing-trial__price">
+        <span class="pricing-trial__amount">{trialOffer.price}</span>
+        <span class="pricing-trial__duration">{trialOffer.duration}</span>
+      </div>
+    </div>
+
+    <div class="grid grid--3 pricing-plans">
+      {
+        pricingPlans.map((plan) => (
+          <div class="card pricing-plan">
+            <p class="pricing-plan__grade">{plan.grade}</p>
+            <p class="pricing-plan__duration">{plan.duration} / 回</p>
+            <p class="pricing-plan__price">
+              <span class="pricing-plan__price-num">{plan.price}</span>
+              <span class="pricing-plan__price-unit">{plan.priceUnit}</span>
+            </p>
+          </div>
+        ))
+      }
+    </div>
+
+    <ul class="pricing-notes">
+      {pricingNotes.map((note) => <li>{note}</li>)}
+    </ul>
+
+    <div class="pricing-cta">
+      <CtaButton label="料金について相談する" />
+    </div>
+  </div>
+</section>
+
+<style>
+  .pricing-trial {
+    max-width: 720px;
+    margin: 0 auto 24px;
+    background: #fff;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-lg);
+    padding: 24px 28px;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+  }
+
+  .pricing-trial__desc {
+    margin-top: 10px;
+    font-size: 0.88rem;
+    color: var(--color-text-muted);
+    max-width: 46ch;
+    line-height: 1.8;
+  }
+
+  .pricing-trial__price {
+    display: flex;
+    align-items: baseline;
+    gap: 6px;
+    flex-shrink: 0;
+  }
+
+  .pricing-trial__amount {
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: var(--color-brand-dark);
+  }
+
+  .pricing-trial__duration {
+    font-size: 0.85rem;
+    color: var(--color-text-muted);
+  }
+
+  .pricing-plans {
+    max-width: 860px;
+    margin-inline: auto;
+  }
+
+  .pricing-plan {
+    text-align: center;
+  }
+
+  .pricing-plan__grade {
+    font-weight: 700;
+    font-size: 1rem;
+  }
+
+  .pricing-plan__duration {
+    margin-top: 6px;
+    font-size: 0.82rem;
+    color: var(--color-text-muted);
+  }
+
+  .pricing-plan__price {
+    margin-top: 16px;
+  }
+
+  .pricing-plan__price-num {
+    font-size: 1.7rem;
+    font-weight: 700;
+    color: var(--color-brand-dark);
+  }
+
+  .pricing-plan__price-unit {
+    font-size: 0.85rem;
+    color: var(--color-text-muted);
+    margin-left: 2px;
+  }
+
+  .pricing-notes {
+    max-width: 620px;
+    margin: 32px auto 0;
+    display: grid;
+    gap: 8px;
+  }
+
+  .pricing-notes li {
+    font-size: 0.85rem;
+    color: var(--color-text-muted);
+    padding-left: 18px;
+    position: relative;
+    line-height: 1.8;
+  }
+
+  .pricing-notes li::before {
+    content: "・";
+    position: absolute;
+    left: 0;
+  }
+
+  .pricing-cta {
+    text-align: center;
+    margin-top: 32px;
+  }
+</style>

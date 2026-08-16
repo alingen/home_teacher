@@ -1,0 +1,95 @@
+---
+import "../styles/global.css";
+import Analytics from "../components/Analytics.astro";
+import { site } from "../config/site";
+import { stations } from "../data/areas";
+
+interface Props {
+  title?: string;
+  description?: string;
+}
+
+const { title = site.title, description = site.description } = Astro.props;
+
+const canonicalURL = new URL(Astro.url.pathname, site.url);
+const ogImageURL = new URL(site.ogImage, site.url);
+
+// 構造化データ（EducationalOrganization）
+// 実在が未確定の情報（電話番号・詳細住所・資格・実績など）は含めていません。
+const structuredData = {
+  "@context": "https://schema.org",
+  "@type": "EducationalOrganization",
+  name: site.name,
+  url: site.url,
+  description: site.description,
+  address: {
+    "@type": "PostalAddress",
+    addressLocality: "福岡市",
+    addressRegion: "福岡県",
+    addressCountry: "JP",
+  },
+  areaServed: [
+    { "@type": "City", name: "福岡市" },
+    ...stations.map((station) => ({ "@type": "Place", name: `${station.name}駅周辺` })),
+  ],
+  makesOffer: {
+    "@type": "Offer",
+    itemOffered: {
+      "@type": "Service",
+      name: "個人家庭教師（訪問指導）",
+      serviceType: "家庭教師",
+      areaServed: "福岡市",
+      audience: {
+        "@type": "Audience",
+        audienceType: "小学生・中学生・高校生とその保護者",
+      },
+    },
+  },
+};
+---
+
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href={canonicalURL} />
+
+    <!-- Favicon: public/favicon.svg を差し替えるだけで反映されます -->
+    <!-- TODO(任意): public/favicon.ico や apple-touch-icon.png を追加する場合はここにlinkタグを追加してください -->
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta name="theme-color" content="#1f6f63" />
+
+    <!-- OGP -->
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content={site.name} />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonicalURL} />
+    <meta property="og:image" content={ogImageURL} />
+    <meta property="og:locale" content={site.locale} />
+
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={title} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={ogImageURL} />
+
+    <!-- Google Search Console 確認用（未設定の間は出力されません） -->
+    {
+      site.googleSiteVerificationCode && (
+        <meta name="google-site-verification" content={site.googleSiteVerificationCode} />
+      )
+    }
+
+    <script type="application/ld+json" set:html={JSON.stringify(structuredData)} is:inline />
+
+    <Analytics />
+  </head>
+  <body>
+    <a href="#main" class="skip-link">本文へスキップ</a>
+    <slot />
+  </body>
+</html>

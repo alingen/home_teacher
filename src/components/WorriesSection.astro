@@ -1,0 +1,53 @@
+---
+import SectionHeading from "./SectionHeading.astro";
+import { worries } from "../data/worries";
+---
+
+<section class="section" aria-labelledby="worries-heading">
+  <div class="container">
+    <SectionHeading
+      title="こんなお悩みありませんか？"
+      description="一つでも当てはまるものがあれば、お気軽にご相談ください。"
+      id="worries-heading"
+    />
+    <ul class="worries-list grid grid--2">
+      {
+        worries.map((worry) => (
+          <li class="worries-list__item">
+            <span class="worries-list__mark" aria-hidden="true">
+              ?
+            </span>
+            <span>{worry.text}</span>
+          </li>
+        ))
+      }
+    </ul>
+  </div>
+</section>
+
+<style>
+  .worries-list__item {
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+    background: #fff;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    padding: 18px 20px;
+    font-size: 0.95rem;
+  }
+
+  .worries-list__mark {
+    flex-shrink: 0;
+    width: 26px;
+    height: 26px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    background: var(--color-brand-tint);
+    color: var(--color-brand-dark);
+    font-weight: 700;
+    font-size: 0.85rem;
+  }
+</style>

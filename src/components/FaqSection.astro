@@ -1,0 +1,125 @@
+---
+// アコーディオンはネイティブの <details>/<summary> を使用し、JSを一切使わずに実装しています。
+import SectionHeading from "./SectionHeading.astro";
+import { faqItems } from "../data/faq";
+
+const faqJsonLd = {
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  mainEntity: faqItems.map((item) => ({
+    "@type": "Question",
+    name: item.question,
+    acceptedAnswer: {
+      "@type": "Answer",
+      text: item.answer,
+    },
+  })),
+};
+---
+
+<section class="section section--alt" aria-labelledby="faq-heading">
+  <div class="container">
+    <SectionHeading eyebrow="FAQ" title="よくある質問" id="faq-heading" />
+
+    <div class="faq-list">
+      {
+        faqItems.map((item) => (
+          <details class="faq-item">
+            <summary>
+              <span class="faq-item__q" aria-hidden="true">
+                Q
+              </span>
+              <span>{item.question}</span>
+            </summary>
+            <div class="faq-item__answer">
+              <span class="faq-item__a" aria-hidden="true">
+                A
+              </span>
+              <p>{item.answer}</p>
+            </div>
+          </details>
+        ))
+      }
+    </div>
+  </div>
+</section>
+
+<script type="application/ld+json" set:html={JSON.stringify(faqJsonLd)} is:inline />
+
+<style>
+  .faq-list {
+    max-width: 720px;
+    margin-inline: auto;
+    display: grid;
+    gap: 12px;
+  }
+
+  .faq-item {
+    background: #fff;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    padding: 6px 20px;
+  }
+
+  .faq-item summary {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 16px 0;
+    font-weight: 600;
+    font-size: 0.95rem;
+    cursor: pointer;
+    list-style: none;
+  }
+
+  .faq-item summary::-webkit-details-marker {
+    display: none;
+  }
+
+  .faq-item summary::after {
+    content: "+";
+    margin-left: auto;
+    font-size: 1.2rem;
+    color: var(--color-brand);
+    flex-shrink: 0;
+  }
+
+  .faq-item[open] summary::after {
+    content: "−";
+  }
+
+  .faq-item__q,
+  .faq-item__a {
+    flex-shrink: 0;
+    width: 24px;
+    height: 24px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    font-size: 0.78rem;
+    font-weight: 700;
+  }
+
+  .faq-item__q {
+    background: var(--color-brand);
+    color: #fff;
+  }
+
+  .faq-item__answer {
+    display: flex;
+    gap: 12px;
+    padding: 0 0 18px;
+  }
+
+  .faq-item__a {
+    background: var(--color-brand-tint);
+    color: var(--color-brand-dark);
+  }
+
+  .faq-item__answer p {
+    font-size: 0.88rem;
+    color: var(--color-text-muted);
+    line-height: 1.85;
+  }
+</style>
