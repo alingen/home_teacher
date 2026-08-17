@@ -1,0 +1,104 @@
+---
+// ファーストビュー直下に表示する「空き状況」のお知らせ。
+// 集客に直結する重要な情報のため、他セクションよりも目立つ配色・サイズにしていますが、
+// 色自体はサイト全体のブランドカラー（ティール）＋控えめなアラート色にとどめています。
+// 表示内容は src/data/availability.ts を編集するだけで更新できます。
+import { availability } from "../data/availability";
+
+const statusModifier = availability.hasVacancy ? "is-open" : "is-full";
+---
+
+<section class="availability" aria-label="空き状況のお知らせ">
+  <div class="container">
+    <div class={`availability-card ${statusModifier}`}>
+      <p class="availability-card__heading">現在の空き状況（{availability.updatedOnLabel}）</p>
+      <ul class="availability-card__status-list">
+        {availability.statusLines.map((line) => <li>{line}</li>)}
+      </ul>
+
+      {
+        availability.notes.length > 0 && (
+          <ul class="availability-card__notes">
+            {availability.notes.map((note) => (
+              <li>{note}</li>
+            ))}
+          </ul>
+        )
+      }
+    </div>
+  </div>
+</section>
+
+<style>
+  .availability {
+    padding-block: 28px 8px;
+  }
+
+  @media (min-width: 768px) {
+    .availability {
+      padding-block: 40px 8px;
+    }
+  }
+
+  .availability-card {
+    position: relative;
+    max-width: 560px;
+    margin-inline: auto;
+    background: var(--color-brand-tint);
+    border: 2px solid var(--color-brand);
+    border-radius: var(--radius-lg);
+    padding: 28px 24px;
+    text-align: center;
+    box-shadow: 0 12px 32px rgba(31, 111, 99, 0.16);
+  }
+
+  .availability-card__heading {
+    display: inline-block;
+    padding-bottom: 12px;
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: var(--color-text-muted);
+    border-bottom: 1px dashed var(--color-brand);
+  }
+
+  .availability-card__status-list {
+    display: grid;
+    gap: 4px;
+    margin-top: 18px;
+  }
+
+  .availability-card__status-list li {
+    font-size: 1.4rem;
+    font-weight: 800;
+    line-height: 1.5;
+  }
+
+  .availability-card.is-full .availability-card__status-list li {
+    color: #b3434b;
+  }
+
+  .availability-card.is-open .availability-card__status-list li {
+    color: var(--color-brand-dark);
+  }
+
+  .availability-card__notes {
+    display: inline-grid;
+    gap: 6px;
+    margin-top: 22px;
+    text-align: left;
+  }
+
+  .availability-card__notes li {
+    position: relative;
+    padding-left: 16px;
+    font-size: 0.78rem;
+    color: var(--color-text-muted);
+    line-height: 1.8;
+  }
+
+  .availability-card__notes li::before {
+    content: "・";
+    position: absolute;
+    left: 0;
+  }
+</style>

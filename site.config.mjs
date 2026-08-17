@@ -9,10 +9,9 @@
 // アプリ側（src/config/site.ts）の両方から、型の心配なく同じ値を読み込むためです。
 // =============================================================
 
-// TODO(必須・公開前に差し替え): LINE公式アカウント／オープンチャットの追加用URL
-// 例: https://line.me/R/ti/p/@xxxxxxx （LINE公式アカウントの「友だち追加URL」）
+// LINE公式アカウントの友だち追加URL（ID: @816lltvn）
 // このURLを変更するだけで、サイト内すべての「LINEで相談する」ボタンに反映されます。
-export const LINE_URL = "https://line.me/R/ti/p/@your-line-id";
+export const LINE_URL = "https://line.me/R/ti/p/@816lltvn";
 
 // TODO(公開前に差し替え): 独自ドメインが決まったらここを更新してください
 // sitemap生成・canonical URL・OGP画像の絶対URL化などに使われます。

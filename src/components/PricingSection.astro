@@ -3,7 +3,7 @@
 // 金額を変更したい場合は、このコンポーネントではなく data ファイルを編集してください。
 import SectionHeading from "./SectionHeading.astro";
 import CtaButton from "./CtaButton.astro";
-import { trialOffer, pricingPlans, pricingNotes } from "../data/pricing";
+import { trialOffer, durations, pricingRows, siblingDiscount, pricingNotes } from "../data/pricing";
 ---
 
 <section class="section section--alt" aria-labelledby="pricing-heading">
@@ -11,9 +11,20 @@ import { trialOffer, pricingPlans, pricingNotes } from "../data/pricing";
     <SectionHeading
       eyebrow="料金"
       title="料金プラン"
-      description="学年・回数によって金額の目安は変わります。詳しくはご相談時にご案内します。"
+      description="授業時間が長くなるほど、1時間あたりの単価がお得になります。"
       id="pricing-heading"
     />
+
+    <div class="sibling-discount">
+      <div class="sibling-discount__percent">
+        <span class="sibling-discount__num">{siblingDiscount.percent}%</span>
+        <span class="sibling-discount__off">OFF</span>
+      </div>
+      <div class="sibling-discount__body">
+        <span class="sibling-discount__label">{siblingDiscount.label}</span>
+        <p>{siblingDiscount.description}</p>
+      </div>
+    </div>
 
     <div class="pricing-trial">
       <div>
@@ -26,19 +37,33 @@ import { trialOffer, pricingPlans, pricingNotes } from "../data/pricing";
       </div>
     </div>
 
-    <div class="grid grid--3 pricing-plans">
-      {
-        pricingPlans.map((plan) => (
-          <div class="card pricing-plan">
-            <p class="pricing-plan__grade">{plan.grade}</p>
-            <p class="pricing-plan__duration">{plan.duration} / 回</p>
-            <p class="pricing-plan__price">
-              <span class="pricing-plan__price-num">{plan.price}</span>
-              <span class="pricing-plan__price-unit">{plan.priceUnit}</span>
-            </p>
-          </div>
-        ))
-      }
+    <div class="pricing-table-wrap">
+      <table class="pricing-table">
+        <caption class="sr-only">学年・授業時間別の料金一覧（1回あたり）</caption>
+        <thead>
+          <tr>
+            <th scope="col">学年</th>
+            {durations.map((duration) => <th scope="col">{duration}</th>)}
+          </tr>
+        </thead>
+        <tbody>
+          {
+            pricingRows.map((row) => (
+              <tr>
+                <th scope="row">{row.grade}</th>
+                {durations.map((duration) => (
+                  <td>
+                    <div class="pricing-table__cell">
+                      <span class="pricing-table__total">{row.prices[duration].total}</span>
+                      <span class="pricing-table__hourly">{row.prices[duration].hourlyRate}</span>
+                    </div>
+                  </td>
+                ))}
+              </tr>
+            ))
+          }
+        </tbody>
+      </table>
     </div>
 
     <ul class="pricing-notes">
@@ -92,40 +117,120 @@ import { trialOffer, pricingPlans, pricingNotes } from "../data/pricing";
     color: var(--color-text-muted);
   }
 
-  .pricing-plans {
+  .pricing-table-wrap {
     max-width: 860px;
     margin-inline: auto;
+    overflow-x: auto;
+    background: #fff;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-card);
   }
 
-  .pricing-plan {
+  .pricing-table {
+    width: 100%;
+    min-width: 480px;
+    border-collapse: collapse;
     text-align: center;
   }
 
-  .pricing-plan__grade {
+  .pricing-table th,
+  .pricing-table td {
+    padding: 16px 12px;
+    border-bottom: 1px solid var(--color-border);
+  }
+
+  .pricing-table thead th {
+    font-size: 0.85rem;
     font-weight: 700;
-    font-size: 1rem;
-  }
-
-  .pricing-plan__duration {
-    margin-top: 6px;
-    font-size: 0.82rem;
     color: var(--color-text-muted);
+    background: var(--color-bg-alt);
   }
 
-  .pricing-plan__price {
-    margin-top: 16px;
+  .pricing-table thead th:first-child {
+    text-align: left;
   }
 
-  .pricing-plan__price-num {
-    font-size: 1.7rem;
+  .pricing-table tbody th[scope="row"] {
+    text-align: left;
+    font-weight: 700;
+    font-size: 0.95rem;
+    white-space: nowrap;
+  }
+
+  .pricing-table tbody tr:last-child th,
+  .pricing-table tbody tr:last-child td {
+    border-bottom: none;
+  }
+
+  .pricing-table__cell {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+  }
+
+  .pricing-table__total {
+    font-size: 1.15rem;
     font-weight: 700;
     color: var(--color-brand-dark);
   }
 
-  .pricing-plan__price-unit {
-    font-size: 0.85rem;
+  .pricing-table__hourly {
+    font-size: 0.72rem;
     color: var(--color-text-muted);
-    margin-left: 2px;
+  }
+
+  .sibling-discount {
+    max-width: 720px;
+    margin: 0 auto 28px;
+    background: var(--color-brand);
+    color: #fff;
+    border-radius: var(--radius-lg);
+    padding: 22px 26px;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 18px;
+    box-shadow: 0 10px 28px rgba(31, 111, 99, 0.28);
+  }
+
+  .sibling-discount__percent {
+    display: flex;
+    align-items: baseline;
+    gap: 4px;
+    flex-shrink: 0;
+  }
+
+  .sibling-discount__num {
+    font-size: 2.4rem;
+    font-weight: 800;
+    line-height: 1;
+  }
+
+  .sibling-discount__off {
+    font-size: 1rem;
+    font-weight: 700;
+  }
+
+  .sibling-discount__body {
+    min-width: 0;
+  }
+
+  .sibling-discount__label {
+    display: inline-block;
+    font-size: 0.72rem;
+    font-weight: 700;
+    color: var(--color-brand-dark);
+    background: #fff;
+    padding: 3px 10px;
+    border-radius: 999px;
+  }
+
+  .sibling-discount__body p {
+    margin-top: 8px;
+    font-size: 0.9rem;
+    line-height: 1.75;
   }
 
   .pricing-notes {

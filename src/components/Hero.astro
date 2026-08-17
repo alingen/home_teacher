@@ -3,45 +3,62 @@ import CtaButton from "./CtaButton.astro";
 
 const heroPoints = [
   "中学生を中心に、小学生・高校生にも対応",
-  "数学・英語を中心に指導（他教科も応相談）",
-  "姪浜〜東比恵を中心に訪問",
-  "まずは相談だけでも大丈夫です",
+  "福岡市内を中心に訪問",
+  "入会金・教材費一切なし",
+  "同時指導は2人目が90%OFF",
+];
+
+// 講師の信頼材料。src/data/profile.ts の事実（学歴・指導歴・前職）と矛盾しないよう、
+// 変更する場合は profile.ts 側の記載もあわせて確認してください。
+const trustBadges = [
+  "慶應義塾大学卒",
+  "指導歴10年",
+  "大手個別指導塾の元教室長",
 ];
 ---
 
 <section class="hero" id="top" aria-label="ファーストビュー">
   <div class="container hero__inner">
-    <p class="hero__eyebrow">福岡市・地下鉄空港線沿線の個人家庭教師</p>
-    <h1 class="hero__title">
-      勉強が苦手な子から、<br class="hero__break" />もっと成績を伸ばしたい子まで。
-    </h1>
-    <p class="hero__lead">
-      福岡市・地下鉄空港線沿線（姪浜〜東比恵）を中心にご自宅へ伺う、個人の家庭教師です。塾についていけない、何から始めればいいかわからない、というところからでもご相談ください。
-    </p>
+    <div class="hero__content">
+      <p class="hero__eyebrow">福岡市・地下鉄空港線沿線の個人家庭教師</p>
+      <h1 class="hero__title">
+        つまずきの原因まで戻り、<br />「自分で解ける」を一緒につくります
+      </h1>
+      <p class="hero__lead">
+        勉強が苦手な子から、もっと成績を伸ばしたい子まで。一人ひとりに合わせて指導します。
+      </p>
 
-    <ul class="hero__points">
-      {
-        heroPoints.map((point) => (
-          <li>
-            <svg viewBox="0 0 20 20" aria-hidden="true" focusable="false">
-              <path
-                d="M4 10.5l3.5 3.5L16 5"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="2"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-              />
-            </svg>
-            <span>{point}</span>
-          </li>
-        ))
-      }
-    </ul>
+      <ul class="hero__points">
+        {
+          heroPoints.map((point) => (
+            <li>
+              <svg viewBox="0 0 20 20" aria-hidden="true" focusable="false">
+                <path
+                  d="M4 10.5l3.5 3.5L16 5"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                />
+              </svg>
+              <span>{point}</span>
+            </li>
+          ))
+        }
+      </ul>
 
-    <div class="hero__cta">
-      <CtaButton size="lg" />
-      <p class="cta-note">無理な勧誘は一切行いません。まずはお話だけでも歓迎です。</p>
+      <div class="hero__cta">
+        <CtaButton size="lg" />
+        <p class="cta-note">無理な勧誘は一切行いません。まずはお話だけでも歓迎です。</p>
+      </div>
+    </div>
+
+    <div class="hero__photo-card">
+      <img src="/images/profile-hero.jpg" alt="講師の写真" class="hero__photo" />
+      <ul class="hero__badges">
+        {trustBadges.map((badge) => <li>{badge}</li>)}
+      </ul>
     </div>
   </div>
 </section>
@@ -59,7 +76,28 @@ const heroPoints = [
   }
 
   .hero__inner {
+    display: flex;
+    flex-direction: column;
     max-width: 720px;
+  }
+
+  @media (min-width: 900px) {
+    .hero__inner {
+      max-width: var(--container-width);
+      flex-direction: row;
+      align-items: center;
+      gap: 56px;
+    }
+  }
+
+  .hero__content {
+    min-width: 0;
+  }
+
+  @media (min-width: 900px) {
+    .hero__content {
+      flex: 1;
+    }
   }
 
   .hero__eyebrow {
@@ -75,21 +113,11 @@ const heroPoints = [
   }
 
   .hero__title {
-    font-size: clamp(1.7rem, 5.5vw, 2.5rem);
-    font-weight: 700;
+    font-size: clamp(1.5rem, 5.5vw, 2.3rem);
+    font-weight: 500;
     line-height: 1.55;
     letter-spacing: 0.01em;
     color: var(--color-text);
-  }
-
-  .hero__break {
-    display: none;
-  }
-
-  @media (min-width: 480px) {
-    .hero__break {
-      display: inline;
-    }
   }
 
   .hero__lead {
@@ -98,6 +126,47 @@ const heroPoints = [
     color: var(--color-text-muted);
     line-height: 1.9;
     max-width: 56ch;
+  }
+
+  .hero__photo-card {
+    margin-top: 28px;
+    max-width: 300px;
+    background: #fff;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-lg);
+    padding: 16px;
+    box-shadow: var(--shadow-card);
+  }
+
+  @media (min-width: 900px) {
+    .hero__photo-card {
+      margin-top: 0;
+      flex-shrink: 0;
+      width: 300px;
+    }
+  }
+
+  .hero__photo {
+    width: 100%;
+    aspect-ratio: 3 / 4;
+    object-fit: cover;
+    border-radius: calc(var(--radius-lg) - 6px);
+  }
+
+  .hero__badges {
+    margin-top: 14px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .hero__badges li {
+    background: var(--color-brand-tint);
+    color: var(--color-brand-dark);
+    font-size: 0.76rem;
+    font-weight: 700;
+    padding: 5px 11px;
+    border-radius: 999px;
   }
 
   .hero__points {

@@ -41,25 +41,25 @@ import { profile } from "../data/profile";
         <p class="profile__catchphrase">{profile.catchphrase}</p>
 
         <div class="profile__block">
-          <h3>経歴</h3>
+          <h3>プロフィール</h3>
           {profile.bioParagraphs.map((paragraph) => <p>{paragraph}</p>)}
+        </div>
+
+        <div class="profile__block">
+          <h3>指導歴</h3>
+          {profile.teachingHistoryParagraphs.map((paragraph) => <p>{paragraph}</p>)}
         </div>
 
         <div class="profile__block">
           <h3>指導への考え方</h3>
           <p>{profile.teachingPhilosophy}</p>
-        </div>
-
-        <div class="profile__block">
-          <h3>得意科目</h3>
-          <ul class="profile__subjects">
-            {profile.strongSubjects.map((subject) => <li>{subject}</li>)}
+          <ul class="profile__policy-list">
+            {profile.policyPoints.map((point) => <li>{point}</li>)}
           </ul>
-          <p>{profile.strongSubjectsNote}</p>
         </div>
 
         <div class="profile__block">
-          <h3>趣味・人柄</h3>
+          <h3>趣味</h3>
           <p>{profile.personality}</p>
         </div>
       </div>
@@ -91,17 +91,17 @@ import { profile } from "../data/profile";
   }
 
   .profile__photo {
-    width: 180px;
-    height: 180px;
-    border-radius: 50%;
+    width: 200px;
+    height: auto;
+    aspect-ratio: 4 / 5;
+    border-radius: var(--radius-lg);
     object-fit: cover;
+    object-position: center top;
   }
 
   @media (min-width: 720px) {
     .profile__photo {
       width: 100%;
-      height: auto;
-      aspect-ratio: 1 / 1;
     }
   }
 
@@ -159,18 +159,28 @@ import { profile } from "../data/profile";
     margin-top: 8px;
   }
 
-  .profile__subjects {
-    display: flex;
+  .profile__policy-list {
+    display: grid;
     gap: 8px;
-    margin-bottom: 8px;
+    margin-top: 12px;
   }
 
-  .profile__subjects li {
-    background: var(--color-brand-tint);
-    color: var(--color-brand-dark);
-    font-size: 0.82rem;
-    font-weight: 700;
-    padding: 4px 12px;
-    border-radius: 999px;
+  .profile__policy-list li {
+    position: relative;
+    padding-left: 18px;
+    font-size: 0.88rem;
+    line-height: 1.8;
+    color: var(--color-text);
+  }
+
+  .profile__policy-list li::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 0.65em;
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: var(--color-brand);
   }
 </style>
