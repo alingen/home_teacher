@@ -13,6 +13,6 @@
 // このURLを変更するだけで、サイト内すべての「LINEで相談する」ボタンに反映されます。
 export const LINE_URL = "https://line.me/R/ti/p/@816lltvn";
 
-// TODO(公開前に差し替え): 独自ドメインが決まったらここを更新してください
+// 公開ドメイン。独自ドメインに切り替えたら、ここを更新してください。
 // sitemap生成・canonical URL・OGP画像の絶対URL化などに使われます。
-export const SITE_URL = "https://example.com";
+export const SITE_URL = "https://home-teacher.kot-90313.workers.dev";
