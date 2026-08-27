@@ -8,12 +8,12 @@ import { stations } from "../data/areas";
     <SectionHeading
       eyebrow="対応エリア"
       title="福岡市地下鉄空港線沿線を中心に訪問"
-      description="姪浜〜東比恵の各駅周辺を中心にご自宅へ伺います。自転車で訪問できる範囲にも対応いたします。"
+      description="姪浜〜福岡空港の各駅周辺を中心にご自宅へ伺います。自転車で訪問できる範囲にも対応いたします。"
       id="area-heading"
     />
 
     <div class="area-layout">
-      <ol class="subway-line" aria-label="対応エリア（福岡市地下鉄空港線 姪浜〜東比恵）">
+      <ol class="subway-line" aria-label="対応エリア（福岡市地下鉄空港線 姪浜〜福岡空港）">
         {
           stations.map((station, index) => {
             const isTerminal = index === 0 || index === stations.length - 1;

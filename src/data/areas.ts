@@ -17,4 +17,5 @@ export const stations: Station[] = [
   { name: "祇園" },
   { name: "博多" },
   { name: "東比恵" },
+  { name: "福岡空港"},
 ];
