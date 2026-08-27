@@ -1,0 +1,174 @@
+---
+// 「ご利用者の声」ページ。
+// 表示内容はすべて src/data/testimonials.ts から取得しています。
+// 声を追加・変更したい場合は data ファイルのみ編集してください。
+import BaseLayout from "../layouts/BaseLayout.astro";
+import Header from "../components/Header.astro";
+import Footer from "../components/Footer.astro";
+import StickyCta from "../components/StickyCta.astro";
+import CtaButton from "../components/CtaButton.astro";
+import SectionHeading from "../components/SectionHeading.astro";
+import { site } from "../config/site";
+import { testimonials } from "../data/testimonials";
+
+const title = `ご利用者の声｜${site.name}`;
+const description =
+  "実際にご指導した生徒・保護者の方からいただいた声をまとめました。部活との両立や苦手科目の克服など、それぞれの状況に合わせた指導の様子をご紹介します。";
+---
+
+<BaseLayout title={title} description={description}>
+  <Header />
+  <main id="main">
+    <section class="section" aria-labelledby="voices-heading">
+      <div class="container">
+        <p class="breadcrumb"><a href="/">トップページ</a><span aria-hidden="true">›</span>ご利用者の声</p>
+
+        <SectionHeading
+          eyebrow="ご利用者の声"
+          title="生徒・保護者の方からいただいた声"
+          description="実際に家庭教師として指導した生徒・保護者の方からいただいた声を掲載しています。"
+          id="voices-heading"
+        />
+
+        <div class="voices-list">
+          {
+            testimonials.map((testimonial) => (
+              <article class="card voice-card">
+                {testimonial.title && <p class="voice-card__title">{testimonial.title}</p>}
+
+                <div class="voice-card__grid">
+                  <div class="voice-block">
+                    <span class="badge voice-block__badge">生徒の声</span>
+                    {testimonial.student.map((paragraph) => <p>{paragraph}</p>)}
+                  </div>
+
+                  <div class="voice-block voice-block--parent">
+                    <span class="badge voice-block__badge voice-block__badge--parent">保護者の声</span>
+                    {testimonial.parent.map((paragraph) => <p>{paragraph}</p>)}
+                  </div>
+                </div>
+
+                <div class="teacher-message">
+                  <span class="badge voice-block__badge voice-block__badge--teacher">かず先生からのメッセージ</span>
+                  {testimonial.teacherMessage.map((paragraph) => <p>{paragraph}</p>)}
+                </div>
+              </article>
+            ))
+          }
+        </div>
+
+        <div class="voices-cta">
+          <p>指導について、まずは気軽にご相談ください。</p>
+          <CtaButton size="lg" />
+          <p class="cta-note">
+            <a href="/results">合格実績はこちら</a>
+          </p>
+        </div>
+      </div>
+    </section>
+  </main>
+  <Footer />
+  <StickyCta />
+</BaseLayout>
+
+<style>
+  .breadcrumb {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.78rem;
+    color: var(--color-text-muted);
+    margin-bottom: 32px;
+  }
+
+  .breadcrumb a {
+    color: var(--color-text-muted);
+    text-decoration: underline;
+  }
+
+  .breadcrumb a:hover {
+    color: var(--color-brand-dark);
+  }
+
+  .voices-list {
+    display: grid;
+    gap: 24px;
+    max-width: 880px;
+    margin-inline: auto;
+  }
+
+  .voice-card__title {
+    font-size: 1.05rem;
+    font-weight: 700;
+    margin-bottom: 20px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid var(--color-border);
+  }
+
+  .voice-card__grid {
+    display: grid;
+    gap: 24px;
+  }
+
+  @media (min-width: 720px) {
+    .voice-card__grid {
+      grid-template-columns: 1fr 1fr;
+      gap: 32px;
+    }
+  }
+
+  .voice-block__badge {
+    margin-bottom: 12px;
+  }
+
+  .voice-block__badge--parent {
+    background: var(--color-brand-dark);
+  }
+
+  .voice-block p {
+    font-size: 0.9rem;
+    line-height: 1.9;
+    color: var(--color-text);
+  }
+
+  .voice-block p + p {
+    margin-top: 10px;
+  }
+
+  .teacher-message {
+    margin-top: 24px;
+    padding-top: 24px;
+    border-top: 1px solid var(--color-border);
+    background: var(--color-brand-tint);
+    margin-inline: -28px;
+    margin-bottom: -28px;
+    padding-inline: 28px;
+    padding-bottom: 28px;
+    border-bottom-left-radius: var(--radius-lg);
+    border-bottom-right-radius: var(--radius-lg);
+  }
+
+  .voice-block__badge--teacher {
+    background: var(--color-brand);
+  }
+
+  .teacher-message p {
+    font-size: 0.9rem;
+    line-height: 1.9;
+    color: var(--color-text);
+  }
+
+  .teacher-message p + p {
+    margin-top: 10px;
+  }
+
+  .voices-cta {
+    text-align: center;
+    margin-top: 64px;
+  }
+
+  .voices-cta > p:first-child {
+    font-weight: 700;
+    margin-bottom: 16px;
+  }
+</style>

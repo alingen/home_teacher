@@ -44,6 +44,11 @@ import { achievements } from "../data/achievements";
       }
     </ul>
 
+    <p class="achievements-links">
+      <a href="/results">合格実績の一覧を見る</a>
+      <span aria-hidden="true">/</span>
+      <a href="/voices">ご利用者の声を見る</a>
+    </p>
   </div>
 </section>
 
@@ -103,5 +108,27 @@ import { achievements } from "../data/achievements";
     font-size: 0.78rem;
     color: var(--color-text-muted);
     line-height: 1.8;
+  }
+
+  .achievements-links {
+    display: flex;
+    justify-content: center;
+    gap: 12px;
+    margin-top: 28px;
+    font-size: 0.88rem;
+  }
+
+  .achievements-links a {
+    color: var(--color-brand-dark);
+    font-weight: 700;
+    text-decoration: underline;
+  }
+
+  .achievements-links a:hover {
+    color: var(--color-brand);
+  }
+
+  .achievements-links span {
+    color: var(--color-border);
   }
 </style>

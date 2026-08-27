@@ -1,0 +1,162 @@
+---
+// 「合格実績」ページ。
+// 表示内容はすべて src/data/achievements.ts から取得しています。
+// 合格実績を追加・変更したい場合は data ファイルのみ編集してください。
+import BaseLayout from "../layouts/BaseLayout.astro";
+import Header from "../components/Header.astro";
+import Footer from "../components/Footer.astro";
+import StickyCta from "../components/StickyCta.astro";
+import CtaButton from "../components/CtaButton.astro";
+import SectionHeading from "../components/SectionHeading.astro";
+import { site } from "../config/site";
+import { achievements } from "../data/achievements";
+
+const title = `合格実績｜${site.name}`;
+const description =
+  "個人契約の家庭教師として指導した生徒の合格実績です。集団塾・個別指導塾での実績ではなく、指導した生徒本人の合格校のみを掲載しています。";
+---
+
+<BaseLayout title={title} description={description}>
+  <Header />
+  <main id="main">
+    <section class="section" aria-labelledby="results-heading">
+      <div class="container">
+        <p class="breadcrumb"><a href="/">トップページ</a><span aria-hidden="true">›</span>合格実績</p>
+
+        <SectionHeading eyebrow="指導実績" title="合格実績" id="results-heading" />
+
+        <p class="results-note">
+          ※ 集団塾・個別指導塾ではなく、個人契約の家庭教師として指導した生徒の合格校のみを記載しています。
+        </p>
+
+        <ul class="grid grid--2 results-list">
+          {
+            achievements.map((achievement) => (
+              <li class="card achievement-card">
+                <span class="achievement-card__icon" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" fill="none" focusable="false">
+                    <path
+                      d="M12 4L2 8.5l10 4.5 8.5-3.83V16"
+                      stroke="currentColor"
+                      stroke-width="1.6"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                    />
+                    <path
+                      d="M6 10.5V15c0 1.66 2.69 3 6 3s6-1.34 6-3v-4.5"
+                      stroke="currentColor"
+                      stroke-width="1.6"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                    />
+                  </svg>
+                </span>
+                <span class="achievement-card__body">
+                  <span class="badge">{achievement.category}</span>
+                  <p class="achievement-card__school">{achievement.school}</p>
+                </span>
+              </li>
+            ))
+          }
+        </ul>
+
+        <div class="results-cta">
+          <p>指導について、まずは気軽にご相談ください。</p>
+          <CtaButton size="lg" />
+          <p class="cta-note">
+            <a href="/voices">ご利用者の声はこちら</a>
+          </p>
+        </div>
+      </div>
+    </section>
+  </main>
+  <Footer />
+  <StickyCta />
+</BaseLayout>
+
+<style>
+  .breadcrumb {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.78rem;
+    color: var(--color-text-muted);
+    margin-bottom: 32px;
+  }
+
+  .breadcrumb a {
+    color: var(--color-text-muted);
+    text-decoration: underline;
+  }
+
+  .breadcrumb a:hover {
+    color: var(--color-brand-dark);
+  }
+
+  .results-list {
+    max-width: 640px;
+    margin-inline: auto;
+  }
+
+  .achievement-card {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 22px;
+    transition: box-shadow 0.15s ease, transform 0.15s ease;
+  }
+
+  .achievement-card:hover {
+    box-shadow: 0 4px 20px rgba(28, 34, 34, 0.1);
+    transform: translateY(-1px);
+  }
+
+  .achievement-card__icon {
+    flex-shrink: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    background: var(--color-brand-tint);
+    color: var(--color-brand-dark);
+  }
+
+  .achievement-card__icon svg {
+    width: 22px;
+    height: 22px;
+  }
+
+  .achievement-card__body {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 6px;
+    min-width: 0;
+  }
+
+  .achievement-card__school {
+    font-size: 0.98rem;
+    font-weight: 700;
+    line-height: 1.5;
+  }
+
+  .results-note {
+    max-width: 640px;
+    margin: 20px auto 0;
+    font-size: 0.78rem;
+    color: var(--color-text-muted);
+    line-height: 1.8;
+  }
+
+  .results-cta {
+    text-align: center;
+    margin-top: 64px;
+  }
+
+  .results-cta > p:first-child {
+    font-weight: 700;
+    margin-bottom: 16px;
+  }
+</style>
