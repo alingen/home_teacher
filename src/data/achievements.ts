@@ -25,11 +25,6 @@ export const achievements: Achievement[] = [
   // シンプルな一覧形式にした際の見え方を確認するために追加しています。
   // 本番公開前に、実際の合格実績に差し替えるか削除してください。
   // ---------------------------------------------------------------
-  { school: "○○県立○○中学校", category: "中学", sample: true },
-  { school: "○○県立○○中学校", category: "中学", sample: true },
-  { school: "○○県立○○高等学校", category: "高校", sample: true },
-  { school: "○○県立○○高等学校", category: "高校", sample: true },
-  { school: "○○県立○○高等学校", category: "高校", sample: true },
-  { school: "○○大学 ○○学部", category: "大学", sample: true },
-  { school: "○○大学 ○○学部", category: "大学", sample: true },
+  { school: "私立桜丘中学校", category: "中学", sample: true },
+  { school: "中央大学 商学部（内部進学）", category: "大学", sample: true },
 ];

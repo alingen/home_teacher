@@ -39,13 +39,16 @@ export interface ProfileData {
 
   /** 趣味・人柄。未確定のためTODO */
   personality: string;
+
+  /** 記事末尾「この記事を書いた人」欄に表示する、経歴の短いまとめ文 */
+  articleBio: string;
 }
 
 export const profile: ProfileData = {
   photoSrc: "/images/profile.jpg",
   photoAlt: "講師の写真",
 
-  name: "池崎和志（いけざきかずし）",
+  name: "池沢和志（いけざわかずし）",
 
   catchphrase: "勉強のつまずきから学習計画まで、一緒に整理します。",
 
@@ -59,7 +62,7 @@ export const profile: ProfileData = {
 
   teachingHistoryParagraphs: [
     "大学在学中の4年間から、個別指導・集団指導をはじめる。",
-    "大学卒業後は新卒で大手個別指導塾に就職し、半年で教室長になる。",
+    "大学卒業後は新卒で大手個別指導塾に就職し、１年で教室長になる。",
     "指導歴10年。",
   ],
 
@@ -74,4 +77,7 @@ export const profile: ProfileData = {
 
   personality:
     "キャンプ、ギター、旅行、ゲーム、ランニング",
+
+  articleBio:
+    "慶應義塾大学環境情報学部卒。大学在学中から個別指導・集団指導を始め、大手個別指導塾では教室長を経験。指導歴10年。福岡市地下鉄空港線沿線を中心に、訪問型の個人家庭教師として指導しています。",
 };

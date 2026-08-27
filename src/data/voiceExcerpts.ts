@@ -8,10 +8,10 @@ export interface VoiceExcerpt {
 export const voiceExcerpts: VoiceExcerpt[] = [
   {
     quote: "「分からないところは何回聞いても大丈夫」と言ってもらい、以前より質問できるようになりました。",
-    attribution: "中学生・数学",
+    attribution: "生徒様から",
   },
   {
     quote: "部活動の予定も考慮しながら、無理のない学習計画を立てていただきました。",
-    attribution: "中学生の保護者",
+    attribution: "保護者の方から",
   },
 ];
