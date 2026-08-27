@@ -15,4 +15,4 @@ export const LINE_URL = "https://line.me/R/ti/p/@816lltvn";
 
 // 公開ドメイン。独自ドメインに切り替えたら、ここを更新してください。
 // sitemap生成・canonical URL・OGP画像の絶対URL化などに使われます。
-export const SITE_URL = "https://home-teacher.kot-90313.workers.dev";
+export const SITE_URL = "https://home-teacher-fukuoka.com";
