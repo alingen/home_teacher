@@ -3,6 +3,8 @@
 export interface Testimonial {
   /** ケースの見出し。未設定の場合は見出しなしで表示 */
   title?: string;
+  /** 合格実績ページ（/results）からアンカーリンクする場合のID（/voices#slug） */
+  slug?: string;
   student: string[];
   parent: string[];
   /** 生徒・保護者の声に対する、かず先生からのメッセージ */
@@ -14,7 +16,8 @@ export interface Testimonial {
 
 export const testimonials: Testimonial[] = [
   {
-    title: "Y・Yさん",
+    title: "Y・Yさん（慶應大薬学部合格）",
+    slug: "y-y-san",
     photoSrc: "/images/voices/y-san-letter.jpg",
     photoAlt: "Y・Yさんから先生へ宛てた手書きのお手紙",
     student: [
@@ -34,7 +37,8 @@ export const testimonials: Testimonial[] = [
     ],
   },
   {
-    title: "N・Yくん",
+    title: "N・Yくん（神奈川県立鎌倉高校合格）",
+    slug: "n-y-kun",
     student: [
       "部活が週5〜6日あって、家に帰ると疲れて勉強しないことが多かったです。テスト前だけ勉強する感じだったので、最初は志望校にはもう少し点数が必要と言われていました。",
       "先生には問題の解き方だけじゃなくて、勉強の予定も一緒に考えてもらいました。",

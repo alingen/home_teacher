@@ -8,14 +8,16 @@ export interface Achievement {
   category: AchievementCategory;
   /** レイアウト確認用のダミーデータには true を設定（LPの抜粋には出さない） */
   sample?: boolean;
+  /** 対応する src/data/testimonials.ts の slug。設定すると /voices の該当の声へリンクします */
+  voiceSlug?: string;
 }
 
 // 表示順（グルーピングの並び順）
 export const achievementCategoryOrder: AchievementCategory[] = ["中学", "高校", "大学"];
 
 export const achievements: Achievement[] = [
-  { school: "慶應義塾大学 薬学部", category: "大学" },
-  { school: "神奈川県立鎌倉高校", category: "高校" },
+  { school: "慶應義塾大学 薬学部", category: "大学", voiceSlug: "y-y-san" },
+  { school: "神奈川県立鎌倉高校", category: "高校", voiceSlug: "n-y-kun" },
   { school: "神奈川県立深沢高校", category: "高校" },
   { school: "神奈川県立藤沢西高校", category: "高校" },
 

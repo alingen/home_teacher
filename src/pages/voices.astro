@@ -33,7 +33,7 @@ const description =
         <div class="voices-list">
           {
             testimonials.map((testimonial) => (
-              <article class="card voice-card">
+              <article class="card voice-card" id={testimonial.slug}>
                 {testimonial.title && <p class="voice-card__title">{testimonial.title}</p>}
 
                 <div class="voice-card__grid">
@@ -103,6 +103,15 @@ const description =
     gap: 24px;
     max-width: 880px;
     margin-inline: auto;
+  }
+
+  .voice-card {
+    scroll-margin-top: 90px;
+  }
+
+  .voice-card:target {
+    border-color: var(--color-brand);
+    box-shadow: 0 0 0 3px var(--color-brand-tint);
   }
 
   .voice-card__title {
