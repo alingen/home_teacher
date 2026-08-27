@@ -1,0 +1,80 @@
+---
+// トップページ掲載用の「ご利用者の声」抜粋セクション。
+// 表示内容は src/data/voiceExcerpts.ts から取得しています。
+// 全文・他の事例は /voices ページに掲載しています。
+import SectionHeading from "./SectionHeading.astro";
+import { voiceExcerpts } from "../data/voiceExcerpts";
+---
+
+<section class="section" aria-labelledby="voices-preview-heading">
+  <div class="container">
+    <SectionHeading eyebrow="ご利用者の声" title="実際に指導を受けた方の声" id="voices-preview-heading" />
+
+    <ul class="grid grid--2 voice-excerpt-list">
+      {
+        voiceExcerpts.map((excerpt) => (
+          <li class="card voice-excerpt-card">
+            <p class="voice-excerpt-card__quote">{excerpt.quote}</p>
+            <p class="voice-excerpt-card__attribution">{excerpt.attribution}</p>
+          </li>
+        ))
+      }
+    </ul>
+
+    <p class="voice-excerpt-link">
+      <a href="/voices">ほかのご利用者の声を見る</a>
+    </p>
+  </div>
+</section>
+
+<style>
+  .voice-excerpt-list {
+    max-width: 880px;
+    margin-inline: auto;
+  }
+
+  .voice-excerpt-card {
+    position: relative;
+    padding-top: 36px;
+  }
+
+  .voice-excerpt-card::before {
+    content: "“";
+    position: absolute;
+    top: 8px;
+    left: 24px;
+    font-size: 2.4rem;
+    font-weight: 700;
+    line-height: 1;
+    color: var(--color-brand-tint);
+  }
+
+  .voice-excerpt-card__quote {
+    font-size: 0.95rem;
+    line-height: 1.9;
+    color: var(--color-text);
+  }
+
+  .voice-excerpt-card__attribution {
+    margin-top: 16px;
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: var(--color-text-muted);
+  }
+
+  .voice-excerpt-link {
+    text-align: center;
+    margin-top: 28px;
+    font-size: 0.88rem;
+  }
+
+  .voice-excerpt-link a {
+    color: var(--color-brand-dark);
+    font-weight: 700;
+    text-decoration: underline;
+  }
+
+  .voice-excerpt-link a:hover {
+    color: var(--color-brand);
+  }
+</style>
