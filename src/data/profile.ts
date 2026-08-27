@@ -63,6 +63,7 @@ export const profile: ProfileData = {
   teachingHistoryParagraphs: [
     "大学在学中の4年間から、個別指導・集団指導をはじめる。",
     "大学卒業後は新卒で大手個別指導塾に就職し、１年で教室長になる。",
+    "2023年から家庭教師としての指導をはじめる。",
     "指導歴10年。",
   ],
 
