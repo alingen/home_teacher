@@ -7,11 +7,16 @@ export interface Testimonial {
   parent: string[];
   /** 生徒・保護者の声に対する、かず先生からのメッセージ */
   teacherMessage: string[];
+  /** 手書きのお手紙など、写真がある場合のみ設定（public/ 以下のパス） */
+  photoSrc?: string;
+  photoAlt?: string;
 }
 
 export const testimonials: Testimonial[] = [
   {
     title: "Y・Yさん",
+    photoSrc: "/images/voices/y-san-letter.jpg",
+    photoAlt: "Y・Yさんから先生へ宛てた手書きのお手紙",
     student: [
       "はじめたときは合格は無理と学校からも言われて「絶対見返してやる！」という気持ちでやってきました。やる気はあったけれど、今まであんまり真面目に勉強してこなかったせいで、勉強の仕方がわからなかったので、先生に細かく教えてもらって助かりました。",
       "成績が伸びるまで時間がかかって、悩んでいたときも「必ずあがるから大丈夫だよ」と応援してくれて頑張ろうという気になりました。",

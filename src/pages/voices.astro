@@ -39,6 +39,14 @@ const description =
                 <div class="voice-card__grid">
                   <div class="voice-block">
                     <span class="badge voice-block__badge">生徒の声</span>
+                    {testimonial.photoSrc && (
+                      <img
+                        src={testimonial.photoSrc}
+                        alt={testimonial.photoAlt}
+                        class="voice-block__photo"
+                        loading="lazy"
+                      />
+                    )}
                     {testimonial.student.map((paragraph) => <p>{paragraph}</p>)}
                   </div>
 
@@ -119,6 +127,15 @@ const description =
 
   .voice-block__badge {
     margin-bottom: 12px;
+  }
+
+  .voice-block__photo {
+    width: 100%;
+    max-width: 280px;
+    border-radius: 8px;
+    border: 1px solid var(--color-border);
+    box-shadow: var(--shadow-card);
+    margin-bottom: 16px;
   }
 
   .voice-block__badge--parent {
