@@ -166,6 +166,14 @@ const articleJsonLd = {
     margin-top: 0;
   }
 
+  .article-body :global(h3) {
+    font-size: 1.05rem;
+    font-weight: 700;
+    line-height: 1.6;
+    margin-top: 36px;
+    margin-bottom: 14px;
+  }
+
   .article-body :global(ul),
   .article-body :global(ol) {
     margin-top: 20px;
@@ -200,6 +208,27 @@ const articleJsonLd = {
 
   .article-body :global(a:hover) {
     color: var(--color-brand);
+  }
+
+  .article-body :global(code) {
+    font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, monospace;
+    font-size: 0.88em;
+    background: var(--color-bg-alt);
+    border: 1px solid var(--color-border);
+    border-radius: 4px;
+    padding: 2px 7px;
+  }
+
+  .article-body :global(blockquote) {
+    margin: 20px 0;
+    padding: 4px 20px;
+    border-left: 3px solid var(--color-brand);
+    color: var(--color-text-muted);
+    font-style: italic;
+  }
+
+  .article-body :global(blockquote p) {
+    font-size: 0.98rem;
   }
 
   .article-body :global(.table-scroll) {

@@ -1,0 +1,260 @@
+---
+import ArticleLayout from "../../layouts/ArticleLayout.astro";
+import { pricingRows, durations, siblingDiscount, trialOffer } from "../../data/pricing";
+
+const parseYen = (value: string) => Number(value.replace(/[^\d]/g, ""));
+const formatYen = (value: number) => `${value.toLocaleString("ja-JP")}円`;
+
+const gradeRow = (grade: string) => pricingRows.find((row) => row.grade === grade)!;
+
+const juniorRow = gradeRow("中学生");
+const monthlyFour = durations.map((duration) => ({
+  duration,
+  total: formatYen(parseYen(juniorRow.prices[duration].total) * 4),
+}));
+
+const juniorNinety = parseYen(juniorRow.prices["90分"].total);
+const secondChild = Math.round((juniorNinety * (100 - siblingDiscount.percent)) / 100);
+const combinedTotal = juniorNinety + secondChild;
+---
+
+<ArticleLayout
+  seoTitle="福岡市の家庭教師料金を比較｜中学生はいくらかかる？"
+  description="福岡市で中学生の家庭教師を検討している方向けに、授業料以外にかかる費用や、塾・家庭教師センター・個人契約を比較するときのポイントを解説します。"
+  h1="福岡市の家庭教師料金を比較｜中学生はいくらかかる？"
+  publishDate="2026-08-28"
+>
+  <p>福岡市で家庭教師を探していると、さまざまな料金が表示されます。</p>
+  <p>しかし、1時間あたりの授業料だけを見ても、実際に支払う金額は分かりません。</p>
+  <p>家庭教師の料金には、授業料のほか、入会金、管理費、教材費、交通費などが含まれることがあります。</p>
+  <p>この記事では、家庭教師の料金を比較するときの見方と、個人家庭教師いけさんの料金を紹介します。</p>
+
+  <h2>家庭教師にかかる主な費用</h2>
+  <p>家庭教師を利用する際は、次の費用を確認しましょう。</p>
+
+  <h3>授業料</h3>
+  <p>授業を受けるごとに発生する料金です。</p>
+  <p>学年、授業時間、先生の経験、指導内容などによって異なります。</p>
+  <p>料金を見るときは、「1回あたりの料金」と「1時間あたりの料金」を混同しないようにしましょう。</p>
+  <p>90分授業が4,800円の場合、1時間あたりでは3,200円です。</p>
+
+  <h3>入会金</h3>
+  <p>契約開始時に一度だけ支払う費用です。</p>
+  <p>入会金が必要なサービスもあれば、無料のサービスもあります。</p>
+
+  <h3>管理費・サポート費</h3>
+  <p>家庭教師センターなどでは、授業料とは別に毎月の管理費がかかる場合があります。</p>
+  <p>先生の紹介、交代、学習相談、進路情報などのサポートに対する費用です。</p>
+
+  <h3>教材費</h3>
+  <p>専用教材の購入が必要なサービスもあります。</p>
+  <p>学校の教科書やワークを使えるか、教材の購入が必須かを確認しましょう。</p>
+
+  <h3>交通費</h3>
+  <p>訪問型の家庭教師では、先生が自宅まで移動するための交通費がかかる場合があります。</p>
+  <p>公共交通機関を利用する場合は、最寄り駅からの往復料金を確認します。</p>
+
+  <h3>解約・更新に関する費用</h3>
+  <p>最低契約期間、更新費、解約金などが設定されていることもあります。</p>
+  <p>契約前に、途中で終了する場合の条件も確認しておくと安心です。</p>
+
+  <h2>塾・家庭教師センター・個人契約の料金構造</h2>
+  <p>料金を比較するときは、授業料だけでなく、どのような費用が含まれているかを見る必要があります。</p>
+  <div class="table-scroll">
+    <table>
+      <thead>
+        <tr>
+          <th>指導形式</th>
+          <th>主な費用</th>
+          <th>特徴</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>集団塾</td>
+          <td>授業料・教材費・季節講習費</td>
+          <td>複数人で受講するため比較的料金を抑えやすい</td>
+        </tr>
+        <tr>
+          <td>個別指導塾</td>
+          <td>授業料・管理費・教材費</td>
+          <td>先生1人に対して生徒が1〜数人</td>
+        </tr>
+        <tr>
+          <td>家庭教師センター</td>
+          <td>授業料・入会金・管理費・交通費</td>
+          <td>本部サポートや先生の交代制度がある</td>
+        </tr>
+        <tr>
+          <td>個人家庭教師</td>
+          <td>授業料・交通費など</td>
+          <td>先生と直接相談でき、料金構造が比較的シンプル</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  <p>どの指導形式が適しているかは、お子さまの性格や目的によって変わります。</p>
+  <p>集団授業でも積極的に質問できる生徒は、塾が合うことがあります。</p>
+  <p>一方で、分からないところを質問しにくい生徒や、前の学年まで戻る必要がある生徒には、1対1の家庭教師が向いています。</p>
+
+  <h2>個人家庭教師いけさんの料金</h2>
+  <p>当サービスでは、入会金と教材費をいただいていません。</p>
+  <p>必要な費用は、基本的に授業料と交通費の実費です。</p>
+
+  {
+    pricingRows.map((row) => (
+      <>
+        <h3>{row.grade}</h3>
+        <div class="table-scroll">
+          <table>
+            <thead>
+              <tr>
+                <th>授業時間</th>
+                <th class="align-right">1回の料金</th>
+              </tr>
+            </thead>
+            <tbody>
+              {durations.map((duration) => (
+                <tr>
+                  <td>{duration}</td>
+                  <td class="align-right">{row.prices[duration].total}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </>
+    ))
+  }
+
+  <p>
+    初回体験授業は{trialOffer.duration}{trialOffer.price}です。
+  </p>
+  <p>
+    最新の料金や空き状況については、必ず<a href="/#pricing-heading">料金ページ</a>をご確認ください。
+  </p>
+
+  <h2>中学生が月4回利用する場合</h2>
+  <p>中学生が週1回、月4回利用した場合の授業料は次のようになります。</p>
+  <div class="table-scroll">
+    <table>
+      <thead>
+        <tr>
+          <th>授業時間</th>
+          <th class="align-right">月4回の授業料</th>
+        </tr>
+      </thead>
+      <tbody>
+        {
+          monthlyFour.map((row) => (
+            <tr>
+              <td>{row.duration}</td>
+              <td class="align-right">{row.total}</td>
+            </tr>
+          ))
+        }
+      </tbody>
+    </table>
+  </div>
+  <p>別途、訪問に必要な交通費を実費でご負担いただきます。</p>
+  <p>月によって授業回数が異なる場合は、実際に行った回数に応じて料金が変わります。</p>
+
+  <h2>何分の授業を選べばよい？</h2>
+
+  <h3>60分</h3>
+  <p>集中力が続くか心配な生徒や、小学生に向いています。</p>
+  <p>中学生の場合は、1科目の質問対応や、特定の単元に絞った指導に適しています。</p>
+
+  <h3>90分</h3>
+  <p>中学生に最も選びやすい授業時間です。</p>
+  <p>前回の宿題確認、授業内容の解説、演習、次回までの学習計画をまとめて行いやすくなります。</p>
+
+  <h3>120分</h3>
+  <p>複数科目を指導する場合や、受験対策、テスト前の集中指導に向いています。</p>
+  <p>途中で短い休憩を入れながら進めることも可能です。</p>
+
+  <h2>兄弟・姉妹で同時に指導する場合</h2>
+  <p>
+    ご兄弟・ご姉妹を同時に指導する場合、2人目以降の授業料は{siblingDiscount.percent}％OFFです。
+  </p>
+  <p>例えば、中学生2人が同時に90分授業を受ける場合は、次のようになります。</p>
+
+  <div class="fee-breakdown">
+    <p><span>1人目</span><span>{formatYen(juniorNinety)}</span></p>
+    <p><span>2人目</span><span>{formatYen(secondChild)}</span></p>
+    <p class="fee-breakdown__total"><span>合計</span><span>{formatYen(combinedTotal)}＋交通費</span></p>
+  </div>
+
+  <p>学年や指導内容が異なる場合もあるため、実際の進め方は事前にご相談ください。</p>
+
+  <h2>家庭教師料金を比較するときのチェックリスト</h2>
+  <p>問い合わせの際は、次の項目を確認しましょう。</p>
+  <ul>
+    <li>1回あたりの授業料</li>
+    <li>授業時間</li>
+    <li>入会金</li>
+    <li>毎月の管理費</li>
+    <li>教材購入の必要性</li>
+    <li>交通費</li>
+    <li>季節講習や追加授業の料金</li>
+    <li>最低契約期間</li>
+    <li>解約時の費用</li>
+    <li>体験授業後に契約を断れるか</li>
+  </ul>
+  <p>料金表が分かりやすくても、不明な費用があれば契約前に質問することが大切です。</p>
+
+  <h2>安さだけで家庭教師を選ばない</h2>
+  <p>家庭教師は、料金が安ければ必ず良いというものではありません。</p>
+  <p>反対に、高ければ必ず成績が上がるわけでもありません。</p>
+  <p>次の点を含めて判断しましょう。</p>
+  <ul>
+    <li>お子さまが質問しやすいか</li>
+    <li>指導経験があるか</li>
+    <li>現在のつまずきを見つけられるか</li>
+    <li>学習計画まで相談できるか</li>
+    <li>保護者へ状況を共有してくれるか</li>
+    <li>無理なく継続できる料金か</li>
+  </ul>
+  <p>体験授業を受け、指導内容と料金の両方に納得できる先生を選ぶことが重要です。</p>
+
+  <h2>まとめ</h2>
+  <p>福岡市で家庭教師の料金を比較するときは、授業料だけでなく、入会金、管理費、教材費、交通費を含めた総額で考えましょう。</p>
+  <p>
+    当サービスでは、入会金・教材費は不要です。中学生の授業料は、60分{juniorRow.prices["60分"].total}、90分{
+      juniorRow.prices["90分"].total
+    }、120分{juniorRow.prices["120分"].total}です。
+  </p>
+  <p>まだ依頼を決めていない段階でも、料金や授業時間についてLINEからご相談いただけます。</p>
+  <p>「学年・最寄り駅・希望する科目」を分かる範囲でお送りください。</p>
+</ArticleLayout>
+
+<style>
+  .align-right {
+    text-align: right;
+  }
+
+  .fee-breakdown {
+    max-width: 360px;
+    margin: 24px auto;
+    background: var(--color-bg-alt);
+    border-radius: var(--radius-lg);
+    padding: 20px 24px;
+    display: grid;
+    gap: 8px;
+  }
+
+  .fee-breakdown p {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.95rem;
+    margin-top: 0;
+  }
+
+  .fee-breakdown__total {
+    margin-top: 8px !important;
+    padding-top: 12px;
+    border-top: 1px dashed var(--color-border);
+    font-weight: 700;
+    color: var(--color-brand-dark);
+  }
+</style>

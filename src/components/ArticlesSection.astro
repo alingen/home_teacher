@@ -1,0 +1,78 @@
+---
+// トップページ「お役立ち記事」セクション。
+// 表示内容は src/data/articles.ts から取得しています。
+// 記事を追加・変更したい場合は data ファイルと src/pages/articles/ 配下のページを編集してください。
+import SectionHeading from "./SectionHeading.astro";
+import { articles } from "../data/articles";
+---
+
+<section class="section" aria-labelledby="articles-heading">
+  <div class="container">
+    <SectionHeading eyebrow="お役立ち記事" title="学習・家庭教師のお役立ち記事" id="articles-heading" />
+
+    <ul class="grid grid--3 article-list">
+      {
+        articles.map((article) => (
+          <li class="card article-card">
+            <a href={`/articles/${article.slug}`} class="article-card__link">
+              <p class="article-card__title">{article.title}</p>
+              <p class="article-card__excerpt">{article.excerpt}</p>
+              <span class="article-card__more">続きを読む ›</span>
+            </a>
+          </li>
+        ))
+      }
+    </ul>
+  </div>
+</section>
+
+<style>
+  .article-list {
+    align-items: stretch;
+  }
+
+  .article-card {
+    padding: 0;
+    overflow: hidden;
+  }
+
+  .article-card__link {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    padding: 26px;
+    text-decoration: none;
+    color: inherit;
+  }
+
+  .article-card__title {
+    font-size: 1rem;
+    font-weight: 700;
+    line-height: 1.6;
+  }
+
+  .article-card__excerpt {
+    margin-top: 12px;
+    font-size: 0.85rem;
+    line-height: 1.8;
+    color: var(--color-text-muted);
+    flex-grow: 1;
+  }
+
+  .article-card__more {
+    margin-top: 16px;
+    font-size: 0.82rem;
+    font-weight: 700;
+    color: var(--color-brand-dark);
+  }
+
+  .article-card:hover {
+    box-shadow: 0 4px 20px rgba(28, 34, 34, 0.1);
+    transform: translateY(-1px);
+    transition: box-shadow 0.15s ease, transform 0.15s ease;
+  }
+
+  .article-card:hover .article-card__more {
+    color: var(--color-brand);
+  }
+</style>
