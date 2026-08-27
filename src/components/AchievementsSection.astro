@@ -3,6 +3,9 @@
 // 合格実績を追加・変更したい場合は data ファイルのみ編集してください。
 import SectionHeading from "./SectionHeading.astro";
 import { achievements } from "../data/achievements";
+
+// レイアウト確認用のダミーデータ（sample: true）はLPには出さない
+const featuredAchievements = achievements.filter((achievement) => !achievement.sample);
 ---
 
 <section class="section" aria-labelledby="achievements-heading">
@@ -10,12 +13,12 @@ import { achievements } from "../data/achievements";
     <SectionHeading eyebrow="指導実績" title="合格実績" id="achievements-heading" />
 
     <p class="achievements-note">
-      ※ 集団塾・個別指導塾ではなく、個人契約の家庭教師として指導した生徒の合格校のみを記載しています。
+      ※ 下記は一例です
     </p>
 
     <ul class="grid grid--2 achievements-list">
       {
-        achievements.map((achievement) => (
+        featuredAchievements.map((achievement) => (
           <li class="card achievement-card">
             <span class="achievement-card__icon" aria-hidden="true">
               <svg viewBox="0 0 24 24" fill="none" focusable="false">
