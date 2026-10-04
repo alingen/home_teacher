@@ -9,7 +9,7 @@
 #
 # 流れ: authorize → seo-in-progress を付与 → Claude が CLAUDE.md に従って実装・検証し、
 #       Claude GitHub App として seo/issue-<番号>-... ブランチに push → main 向け PR を作成
-#       → PR は seo-automerge.yml が検証して auto-merge（squash）を有効化
+#       → CI（ci-build）成功後、seo-automerge.yml が検証して squash merge
 # PR が作られなかった場合（停止すべきケース・エラー）は seo-blocked を付けて人間に確認を求める。
 #
 # Issue 本文は承認済みの仕様書だが、信頼済みコードではない。

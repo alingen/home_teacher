@@ -54,19 +54,20 @@ const DRAFT_LABEL = "完成原稿";
 
 // ---- 原稿を取得 ------------------------------------------------
 let source;
+let issueText = "";
 if (issueNumber) {
-  const issueBody = execFileSync("gh", ["issue", "view", issueNumber, "--json", "body", "-q", ".body"], {
+  issueText = execFileSync("gh", ["issue", "view", issueNumber, "--json", "body", "-q", ".body"], {
     encoding: "utf8",
   });
-  source = extractIssueSection(issueBody, DRAFT_LABEL);
+  source = extractIssueSection(issueText, DRAFT_LABEL);
   if (source === null) {
     console.error(`Issue #${issueNumber} に「### ${DRAFT_LABEL}」欄が見つかりません。`);
     process.exit(1);
   }
 } else {
-  const text = readFileSync(bodyFile, "utf8");
+  issueText = readFileSync(bodyFile, "utf8");
   // Issue 本文をそのまま保存したファイルなら「完成原稿」欄だけを取り出す
-  source = extractIssueSection(text, DRAFT_LABEL) ?? text;
+  source = extractIssueSection(issueText, DRAFT_LABEL) ?? issueText;
 }
 
 /** Issue 本文から、指定した欄の中身を返す（欄を囲むコードブロックは外す） */
@@ -180,7 +181,27 @@ function decodeEntities(text) {
 // ---- 比較 --------------------------------------------------------
 const normalize = (s) => s.replace(/\s+/g, "");
 const expected = markdownBlocks(source);
-const actual = htmlBlocks(bodyMatch[1]);
+
+// Issue の「内部リンク」「CTA」欄で指定されたリンク（「置き場所：リンク文言 → リンク先」）は
+// 完成原稿の外から追加されるため、原稿にない場合は照合から除く
+const linkTexts = new Set(
+  ["内部リンク", "CTA"]
+    .flatMap((label) => (extractIssueSection(issueText, label) ?? "").split("\n"))
+    .map((line) => line.match(/^(?:[-*]\s*)?(?:[^：:→]*[：:])?\s*(.+?)\s*(?:→|->)/)?.[1])
+    .filter(Boolean)
+    .map((text) => normalize(stripInlineMarkdown(text))),
+);
+const expectedSet = new Set(expected.map(normalize));
+const addedLinks = [];
+const actual = htmlBlocks(bodyMatch[1]).filter((block) => {
+  const key = normalize(block);
+  if (linkTexts.has(key) && !expectedSet.has(key)) {
+    addedLinks.push(block);
+    return false;
+  }
+  return true;
+});
+if (addedLinks.length) console.log(`Issue の内部リンク・CTA 指定による追加（照合対象外）: ${addedLinks.join(" / ")}`);
 
 const diffs = [];
 const max = Math.max(expected.length, actual.length);

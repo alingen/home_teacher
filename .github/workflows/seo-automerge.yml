@@ -1,36 +1,43 @@
 # =============================================================
-# SEO 自動実装 PR の auto-merge
+# SEO 自動実装 PR の自動 merge
 # -------------------------------------------------------------
-# 対象は次をすべて満たす PR だけ（それ以外の PR には何もしない）
-#   - main 向け・このリポジトリ内のブランチ（fork 由来は対象外）
-#   - ブランチ名が seo/issue-<番号>- で始まる
-#   - 作成者が claude[bot]（seo-implement.yml の Claude GitHub App）
-#   - PR 本文に「Closes #<番号>」があり、その Issue が [SEO記事実装] ＋ seo-approved で、seo-blocked でない
-#   - 変更ファイルが記事ページ（src/pages/articles/*.astro）と src/data/articles.ts だけ
-# 満たせば seo-automation ラベルを付け、GitHub 標準の auto-merge（squash）を有効化する。
-# 実際の merge は、required check（ci-build）が成功し conflict がない時点で GitHub が行う。
-# 条件を満たさない場合は seo-blocked を付けて停止する（CI がそのラベルを検知して失敗する）。
+# CI（ci-build）が成功したとき、対象が SEO 自動実装 PR なら、検証 → squash merge → merge 後の処理までを
+# このジョブで順に行う。対象は次をすべて満たす PR だけ（それ以外の PR には何もしない）
+#   - main 向け・このリポジトリ内のブランチ（fork 由来は対象外）で、ブランチ名が seo/issue-<番号>- で始まる
+#   - 作成者が claude[bot]（seo-implement.yml の Claude GitHub App）で、draft でない
+#   - CI が成功したのが PR の最新コミット
+#   - PR 本文に「Closes #<番号>」があり、その Issue が [SEO記事実装] ＋ seo-approved で open、seo-blocked なし
+#   - PR に seo-blocked がない
+#   - 変更ファイルが記事ページ（src/pages/articles/*.astro）と src/data/articles.ts の追加・変更だけ
+# merge 時の required check（ci-build）・conflict の判定は main のルールセットにより GitHub が強制する。
+# 条件を満たさない場合は seo-blocked を付けて停止する。
 #
-# merge 後は元 Issue に結果を1件だけコメントし、seo-in-progress を外す（Issue は Closes で自動 close）。
+# GitHub 標準の auto-merge を使わない理由:
+#   auto-merge を GITHUB_TOKEN で有効化すると merge も github-actions の操作になり、
+#   Closes による Issue の自動 close・ブランチ自動削除・merge 後のワークフローが動かない（動作確認で判明）。
+#   そのため merge 後の処理（Issue close・結果コメント・ブランチ削除）もこのジョブで明示的に行う。
 # =============================================================
 name: SEO自動merge
 
 on:
-  pull_request:
-    types: [opened, reopened, ready_for_review, closed]
+  workflow_run:
+    workflows: ["CI"]
+    types: [completed]
 
 permissions: {}
 
+concurrency:
+  group: seo-automerge-${{ github.event.workflow_run.head_branch }}
+  cancel-in-progress: false
+
 jobs:
-  enable-auto-merge:
-    name: enable-auto-merge
+  merge:
+    name: merge
     if: >-
-      github.event.action != 'closed' &&
-      github.event.pull_request.base.ref == 'main' &&
-      github.event.pull_request.head.repo.full_name == github.repository &&
-      startsWith(github.event.pull_request.head.ref, 'seo/issue-') &&
-      github.event.pull_request.user.login == 'claude[bot]' &&
-      !github.event.pull_request.draft
+      github.event.workflow_run.conclusion == 'success' &&
+      github.event.workflow_run.event == 'pull_request' &&
+      github.event.workflow_run.head_repository.full_name == github.repository &&
+      startsWith(github.event.workflow_run.head_branch, 'seo/issue-')
     runs-on: ubuntu-latest
     timeout-minutes: 5
     permissions:
@@ -42,17 +49,24 @@ jobs:
         with:
           script: |
             const { owner, repo } = context.repo;
-            const pr = context.payload.pull_request;
-            const issueNumber = Number(pr.head.ref.match(/^seo\/issue-(\d+)-/)?.[1]);
+            const run = context.payload.workflow_run;
+            const branch = run.head_branch;
+            const issueNumber = Number(branch.match(/^seo\/issue-(\d+)-/)?.[1]);
+
+            const { data: prs } = await github.rest.pulls.list({ owner, repo, head: `${owner}:${branch}`, base: 'main', state: 'open' });
+            const pr = prs[0];
+            if (!pr) return core.notice('対象の open PR がありません（merge 済みなど）');
+            if (pr.user.login !== 'claude[bot]') return core.notice('SEO 自動実装 PR ではないため何もしません');
+            if (pr.draft) return core.notice('draft のため merge しません');
+            if (pr.head.sha !== run.head_sha) return core.notice('CI が成功したのは最新のコミットではないため、最新コミットの CI を待ちます');
 
             const block = async (reason) => {
-              await github.rest.issues.addLabels({ owner, repo, issue_number: pr.number, labels: ['seo-blocked'] });
-              if (issueNumber) {
-                await github.rest.issues.addLabels({ owner, repo, issue_number: issueNumber, labels: ['seo-blocked'] }).catch(() => {});
+              for (const n of [pr.number, issueNumber].filter(Boolean)) {
+                await github.rest.issues.addLabels({ owner, repo, issue_number: n, labels: ['seo-blocked'] }).catch(() => {});
               }
               await github.rest.issues.createComment({
                 owner, repo, issue_number: pr.number,
-                body: `⚠️ 自動 merge の条件を満たさないため \`seo-blocked\` を付けて停止しました。\n\n- ${reason}\n\n確認後、問題なければ \`seo-blocked\` を外し、手動で merge してください。`,
+                body: `⚠️ 自動 merge の条件を満たさないため \`seo-blocked\` を付けて停止しました。\n\n- ${reason}\n\n確認後、問題なければ \`seo-blocked\` を外して手動で squash merge してください。`,
               });
               core.setFailed(reason);
             };
@@ -84,66 +98,32 @@ jobs:
 
             await github.rest.issues.addLabels({ owner, repo, issue_number: pr.number, labels: ['seo-automation'] });
 
+            // squash merge（sha を指定し、CI が成功したコミットから変わっていないことを保証する）
+            let merged;
             try {
-              await github.graphql(
-                `mutation($id: ID!) {
-                  enablePullRequestAutoMerge(input: { pullRequestId: $id, mergeMethod: SQUASH }) { clientMutationId }
-                }`,
-                { id: pr.node_id },
-              );
-              core.info(`PR #${pr.number} の auto-merge（squash）を有効にしました`);
+              ({ data: merged } = await github.rest.pulls.merge({
+                owner, repo, pull_number: pr.number, merge_method: 'squash', sha: run.head_sha,
+              }));
             } catch (error) {
-              // required check が既に成功済みで「待つものがない」場合は auto-merge を有効化できないため、
-              // その場合に限り直接 squash merge する（ルールセットの条件は GitHub 側で強制される）
-              if (/clean status/i.test(error.message)) {
-                await github.rest.pulls.merge({ owner, repo, pull_number: pr.number, merge_method: 'squash' });
-                core.info(`PR #${pr.number} は merge 可能な状態だったため、直接 squash merge しました`);
-              } else {
-                throw error;
-              }
+              return block(`merge できませんでした（${error.status}: ${error.message}）。conflict やルールセットの条件を確認してください`);
             }
+            core.info(`PR #${pr.number} を squash merge しました: ${merged.sha}`);
 
-  report-merged:
-    name: report-merged
-    if: >-
-      github.event.action == 'closed' &&
-      github.event.pull_request.merged == true &&
-      github.event.pull_request.head.repo.full_name == github.repository &&
-      startsWith(github.event.pull_request.head.ref, 'seo/issue-') &&
-      github.event.pull_request.user.login == 'claude[bot]'
-    runs-on: ubuntu-latest
-    timeout-minutes: 5
-    permissions:
-      issues: write
-      pull-requests: read
-    steps:
-      - uses: actions/github-script@v9
-        with:
-          script: |
-            const { owner, repo } = context.repo;
-            const pr = context.payload.pull_request;
-            const issueNumber = Number(pr.head.ref.match(/^seo\/issue-(\d+)-/)?.[1]);
-            if (!issueNumber) return;
-
-            const files = await github.paginate(github.rest.pulls.listFiles, { owner, repo, pull_number: pr.number, per_page: 100 });
+            // merge 後の処理: 結果コメント → seo-in-progress を外す → Issue を close → ブランチ削除
             const articleUrls = files
               .map((f) => f.filename.match(/^src\/pages\/articles\/([a-z0-9-]+)\.astro$/)?.[1])
               .filter(Boolean)
               .map((slug) => `/articles/${slug}`);
-
             await github.rest.issues.createComment({
               owner, repo, issue_number: issueNumber,
               body: [
                 `✅ PR #${pr.number} を main に squash merge しました（required check \`ci-build\` 成功後の自動 merge）。`,
                 '',
-                `- 記事: ${articleUrls.join(', ') || '（記事ページの変更なし）'}`,
-                `- merge コミット: ${pr.merge_commit_sha}`,
+                `- 記事: ${articleUrls.join(', ')}`,
+                `- merge コミット: ${merged.sha}`,
+                `- CI: ${run.html_url}`,
               ].join('\n'),
             });
-
             await github.rest.issues.removeLabel({ owner, repo, issue_number: issueNumber, name: 'seo-in-progress' }).catch(() => {});
-
-            const { data: issue } = await github.rest.issues.get({ owner, repo, issue_number: issueNumber });
-            if (issue.state === 'open') {
-              await github.rest.issues.update({ owner, repo, issue_number: issueNumber, state: 'closed', state_reason: 'completed' });
-            }
+            await github.rest.issues.update({ owner, repo, issue_number: issueNumber, state: 'closed', state_reason: 'completed' });
+            await github.rest.git.deleteRef({ owner, repo, ref: `heads/${branch}` }).catch((e) => core.warning(`ブランチ削除に失敗: ${e.message}`));
