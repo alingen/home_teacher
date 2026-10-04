@@ -1,7 +1,20 @@
+# =============================================================
+# CI（main 向け PR の必須チェック）
+# -------------------------------------------------------------
+# チェック名 `ci-build` を main のルールセットで required status check に指定しています。
+# job 名を変える場合はルールセット側も合わせて変更してください。
+#
+# 注意: このジョブには job レベルの if を付けないこと。
+# スキップされたジョブは required check を「成功」扱いで満たしてしまうため、
+# どのイベントでも必ず最後まで実行する。
+# =============================================================
 name: CI
 
 on:
   pull_request:
+    branches: [main]
+    # labeled / unlabeled: seo-blocked ラベルの付け外しを merge 可否に反映するため
+    types: [opened, synchronize, reopened, ready_for_review, labeled, unlabeled]
   push:
     branches: [main]
 
@@ -10,15 +23,27 @@ permissions:
 
 jobs:
   build:
+    name: ci-build
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    timeout-minutes: 15
     steps:
-      - uses: actions/checkout@v6
-      - uses: actions/setup-node@v4
+      - name: seo-blocked の PR は merge させない
+        if: contains(github.event.pull_request.labels.*.name, 'seo-blocked')
+        run: |
+          echo "::error::seo-blocked ラベルが付いているため、この PR は merge できません。確認後にラベルを外すと CI が再実行されます。"
+          exit 1
+
+      - uses: actions/checkout@v7
+
+      # Node 24 = 現在の Active LTS（Astro 5 の要件: 18.20.8 / ^20.3 / >=22）
+      - uses: actions/setup-node@v7
         with:
-          node-version: 20
+          node-version: 24
           cache: npm
+
       - run: npm ci
-      # astro check（型チェック）＋ビルド
+
+      # astro check（型チェック）＋ astro build
       - run: npm run build
+
       - run: npm run check:links

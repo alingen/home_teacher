@@ -1,32 +1,41 @@
-name: SEO記事実装依頼
-description: 確定済みの記事原稿をサイトに実装する依頼です（Claude が実装し、PRを作成します）
+# SEO記事実装 Issue のフォーム。
+# Dots が API で Issue を作る場合も、このフォームが生成するのと同じ本文（### 見出し＋各欄）にしてください。
+# 形式の説明とコピー用の本文テンプレートは docs/seo-automation.md にあります。
+# 欄名を変える場合は scripts/check-article-text.mjs の FORM_LABELS も合わせて変更してください。
+name: SEO記事実装
+description: 承認済みの記事・リライト原稿を Claude Code が実装し、CI 成功後に自動 merge します
 title: "[SEO記事実装] "
-labels: ["seo-article"]
 body:
   - type: markdown
     attributes:
       value: |
-        **確定済みの原稿のみ登録してください。** Claude は原稿の意味を変えずにそのまま実装します。
-        内容を確認したら `claude-implement` ラベルを付けてください。Claude が実装を始め、完了すると PR を作成します。
+        **承認済みの原稿だけを登録してください。** `seo-approved` ラベルを付けると Claude Code が実装を開始し、CI 成功後に自動で main へ merge（公開）されます。
+        このリポジトリは公開されているため、Issue の内容は誰でも閲覧できます。
 
-        - 本文の見出しは `##`（H2）と `###`（H3）で書いてください。H1 は下の「H1」欄に書き、本文には含めないでください
-        - 本文中のリンクは `[リンク文言](/articles/slug)` の形で書けます
-        - 画像の追加はこのフォームでは扱いません。必要な場合は備考に書いてください
-        - このリポジトリは公開されているため、Issue の内容は誰でも閲覧できます
-
-  - type: input
-    id: seo_title
+  - type: dropdown
+    id: kind
     attributes:
-      label: SEOタイトル（title）
-      description: 検索結果やブラウザのタブに表示されるタイトル
+      label: 種別
+      options:
+        - 新規記事
+        - リライト
     validations:
       required: true
 
   - type: input
-    id: h1
+    id: slug
     attributes:
-      label: H1（ページ上部の見出し）
-      description: SEOタイトルと同じ場合も記入してください
+      label: 対象URL・slug
+      description: 半角英小文字・数字・ハイフン。URL は /articles/<slug> になります
+      placeholder: /articles/junior-high-english-reading-word-order
+    validations:
+      required: true
+
+  - type: input
+    id: title
+    attributes:
+      label: title
+      description: SEOタイトル（<title>）。リライトで変更しない場合は「変更なし」
     validations:
       required: true
 
@@ -34,22 +43,23 @@ body:
     id: description
     attributes:
       label: meta description
+      description: リライトで変更しない場合は「変更なし」
     validations:
       required: true
 
   - type: input
-    id: slug
+    id: h1
     attributes:
-      label: slug
-      description: 半角英小文字・数字・ハイフンのみ。URLは /articles/<slug> になります
-      placeholder: junior-high-english-reading-word-order
+      label: H1
+      description: ページ上部の見出し。リライトで変更しない場合は「変更なし」
     validations:
       required: true
 
   - type: input
     id: publish_date
     attributes:
-      label: 公開日（YYYY-MM-DD）
+      label: 公開日
+      description: YYYY-MM-DD。新規記事は必須。リライトは「変更なし」
       placeholder: "2026-10-11"
     validations:
       required: true
@@ -58,15 +68,32 @@ body:
     id: excerpt
     attributes:
       label: 記事一覧の紹介文
-      description: トップページの「お役立ち記事」カードに表示する短い紹介文（50〜60字程度）
+      description: トップの「お役立ち記事」カードの紹介文（50〜60字程度）。リライトで変更しない場合は「変更なし」
     validations:
       required: true
 
   - type: textarea
-    id: body
+    id: reason
     attributes:
-      label: 本文
-      description: Markdown で記入（## が H2、### が H3）。H1 は含めないでください
+      label: この記事を作る理由
+
+  - type: textarea
+    id: intent
+    attributes:
+      label: 検索意図
+
+  - type: textarea
+    id: outline
+    attributes:
+      label: H2 / H3構成
+      description: 完成原稿の見出し一覧（確認用）
+
+  - type: textarea
+    id: draft
+    attributes:
+      label: 完成原稿
+      description: H1 は含めず、本文を Markdown で記入（## が H2、### が H3）。リライトは差し替え後の本文全体
+      render: markdown
     validations:
       required: true
 
@@ -74,7 +101,7 @@ body:
     id: internal_links
     attributes:
       label: 内部リンク
-      description: 本文中に書いたもの以外で追加するリンク。「リンク文言 → リンク先」と置き場所を1行ずつ書いてください
+      description: 本文中に書いたもの以外に追加するリンク。「置き場所：リンク文言 → リンク先」を1行ずつ
       placeholder: |
         記事末尾：福岡の家庭教師の料金について読む → /articles/home-teacher-fees-fukuoka
 
@@ -82,11 +109,11 @@ body:
     id: cta
     attributes:
       label: CTA
-      description: 記事末尾に置く案内文・リンク文言とリンク先。記事下の共通LINEボタンは全記事共通のため変更しません
+      description: 記事末尾に置く案内文・リンク文言とリンク先。記事下の共通LINEボタンは変更しません
       placeholder: |
         現在の募集状況・指導内容を確認する → /
 
   - type: textarea
     id: notes
     attributes:
-      label: 備考（任意）
+      label: 実装上の注意

@@ -1,0 +1,155 @@
+# =============================================================
+# SEO 自動実装 PR の CI 失敗時の修正
+# -------------------------------------------------------------
+# CI（ci-build）が失敗したとき、対象が SEO 自動実装 PR（seo/issue-*、作成者 claude[bot]、seo-blocked なし）なら、
+# Claude が原因を確認し、記事ファイルの範囲で安全に直せる場合だけ同じブランチへ push する（CI が再実行され、
+# 成功すれば auto-merge される）。
+#
+# 無限に繰り返さないよう、そのブランチの CI 失敗が 3 回に達したら（＝修正 2 回でも直らなければ）
+# seo-blocked を付けて停止する。Claude が修正を push しなかった場合も seo-blocked を付けて停止する。
+#
+# workflow_run で PR ブランチのコードを Secrets のある環境で実行するため、対象は
+# このリポジトリ内の seo/issue-* ブランチかつ claude[bot] が作成した PR に限定している（fork 由来は対象外）。
+# =============================================================
+name: SEO CI修正
+
+on:
+  workflow_run:
+    workflows: ["CI"]
+    types: [completed]
+
+permissions: {}
+
+concurrency:
+  group: seo-ci-fix-${{ github.event.workflow_run.head_branch }}
+  cancel-in-progress: false
+
+jobs:
+  fix:
+    name: fix
+    if: >-
+      github.event.workflow_run.conclusion == 'failure' &&
+      github.event.workflow_run.event == 'pull_request' &&
+      github.event.workflow_run.head_repository.full_name == github.repository &&
+      startsWith(github.event.workflow_run.head_branch, 'seo/issue-')
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    permissions:
+      contents: write
+      pull-requests: write
+      issues: write
+      actions: read
+      id-token: write
+    steps:
+      - name: 対象 PR と修正回数を確認
+        id: pre
+        uses: actions/github-script@v9
+        with:
+          script: |
+            const { owner, repo } = context.repo;
+            const run = context.payload.workflow_run;
+            const branch = run.head_branch;
+            const issueNumber = Number(branch.match(/^seo\/issue-(\d+)-/)?.[1]);
+            core.setOutput('proceed', 'false');
+
+            const { data: prs } = await github.rest.pulls.list({ owner, repo, head: `${owner}:${branch}`, base: 'main', state: 'open' });
+            const pr = prs[0];
+            if (!pr) return core.notice('対象の open PR がありません');
+            if (pr.user.login !== 'claude[bot]') return core.notice('SEO 自動実装 PR ではありません');
+            if (pr.labels.some((l) => l.name === 'seo-blocked')) return core.notice('seo-blocked のため修正しません');
+            if (pr.head.sha !== run.head_sha) return core.notice('失敗したのは最新のコミットではありません');
+
+            const block = async (reason) => {
+              for (const n of [pr.number, issueNumber].filter(Boolean)) {
+                await github.rest.issues.addLabels({ owner, repo, issue_number: n, labels: ['seo-blocked'] }).catch(() => {});
+              }
+              await github.rest.issues.createComment({
+                owner, repo, issue_number: pr.number,
+                body: `⚠️ ${reason}ため \`seo-blocked\` を付けて停止しました。[失敗した CI](${run.html_url}) を確認してください。`,
+              });
+            };
+
+            const { data: failures } = await github.rest.actions.listWorkflowRuns({
+              owner, repo, workflow_id: 'ci.yml', branch, status: 'failure', per_page: 1,
+            });
+            if (failures.total_count >= 3) return block(`CI が ${failures.total_count} 回失敗し、自動修正で解決しなかった`);
+
+            // 失敗したジョブのログ（末尾）を Claude に渡す
+            const { data: jobs } = await github.rest.actions.listJobsForWorkflowRun({ owner, repo, run_id: run.id });
+            let logs = '';
+            for (const job of jobs.jobs.filter((j) => j.conclusion === 'failure')) {
+              const { data } = await github.rest.actions.downloadJobLogsForWorkflowRun({ owner, repo, job_id: job.id });
+              logs += `===== ${job.name} =====\n${String(data).split('\n').slice(-300).join('\n')}\n`;
+            }
+
+            core.setOutput('logs', logs);
+            core.setOutput('pr', String(pr.number));
+            core.setOutput('proceed', 'true');
+
+      - uses: actions/checkout@v7
+        if: steps.pre.outputs.proceed == 'true'
+        with:
+          ref: ${{ github.event.workflow_run.head_branch }}
+          fetch-depth: 1
+
+      - uses: actions/setup-node@v7
+        if: steps.pre.outputs.proceed == 'true'
+        with:
+          node-version: 24
+
+      - if: steps.pre.outputs.proceed == 'true'
+        run: npm ci
+
+      - name: 失敗ログを保存
+        if: steps.pre.outputs.proceed == 'true'
+        env:
+          LOGS: ${{ steps.pre.outputs.logs }}
+        run: printf '%s\n' "$LOGS" > "$RUNNER_TEMP/ci-failure.log"
+
+      - name: Claude Code で修正
+        if: steps.pre.outputs.proceed == 'true'
+        uses: anthropics/claude-code-action@v1
+        env:
+          CLAUDE_BRANCH: ${{ github.event.workflow_run.head_branch }}
+        with:
+          claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+          # CI を起動したのは claude[bot]（PR 作成・push）または github-actions（ラベル操作）のため
+          allowed_bots: claude,github-actions
+          prompt: |
+            SEO記事の自動実装 PR #${{ steps.pre.outputs.pr }}（ブランチ ${{ github.event.workflow_run.head_branch }}）で CI（ci-build）が失敗しました。
+            失敗したジョブのログは ${{ runner.temp }}/ci-failure.log にあります。CLAUDE.md のルールに従って原因を確認してください。
+
+            - 記事ファイル（src/pages/articles/**、src/data/articles.ts）の実装ミスで、原稿の意味を変えずに直せる場合だけ修正してください。
+              npm run build と npm run check:links が通ることを確認してから、コミットして `git push origin HEAD` で同じブランチに push してください。
+            - 原稿の意味を変える必要がある、記事以外のファイルや既存コードの問題、CI 環境の問題、原因が不明、のいずれかに当たる場合は、
+              何も push せずに終了してください（ワークフローが seo-blocked を付けて人間に引き継ぎます）。
+          claude_args: |
+            --model claude-sonnet-5-5
+            --max-turns 40
+            --allowedTools "Read,Glob,Grep,Read(/${{ runner.temp }}/**),Edit(/src/pages/articles/**),Edit(/src/data/articles.ts),Bash(npm ci),Bash(npm run build),Bash(npm run check:links),Bash(npm run check:article *),Bash(git status),Bash(git diff *),Bash(git log *),Bash(git add *),Bash(git commit *),Bash(git push origin HEAD)"
+            --disallowedTools "WebFetch,WebSearch,Bash(curl *),Bash(wget *),Bash(npm install *),Bash(npm i *)"
+
+      - name: 修正が push されたか確認
+        if: always() && steps.pre.outputs.proceed == 'true'
+        uses: actions/github-script@v9
+        with:
+          script: |
+            const { owner, repo } = context.repo;
+            const run = context.payload.workflow_run;
+            const prNumber = Number('${{ steps.pre.outputs.pr }}');
+            const issueNumber = Number(run.head_branch.match(/^seo\/issue-(\d+)-/)?.[1]);
+
+            const { data: branch } = await github.rest.repos.getBranch({ owner, repo, branch: run.head_branch });
+            if (branch.commit.sha !== run.head_sha) {
+              core.info(`修正が push されました（${branch.commit.sha}）。CI が再実行されます。`);
+              return;
+            }
+
+            for (const n of [prNumber, issueNumber].filter(Boolean)) {
+              await github.rest.issues.addLabels({ owner, repo, issue_number: n, labels: ['seo-blocked'] }).catch(() => {});
+            }
+            const runUrl = `${context.serverUrl}/${owner}/${repo}/actions/runs/${context.runId}`;
+            await github.rest.issues.createComment({
+              owner, repo, issue_number: prNumber,
+              body: `⚠️ CI の失敗を自動では安全に修正できなかったため \`seo-blocked\` を付けて停止しました。[失敗した CI](${run.html_url}) と [修正の実行ログ](${runUrl}) を確認してください。`,
+            });
