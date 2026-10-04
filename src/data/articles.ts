@@ -27,4 +27,10 @@ export const articles: ArticleMeta[] = [
     excerpt: "つまずきの本当の原因を見つけ、どの単元まで戻って復習すればよいかを解説します。",
     publishDate: "2026-08-28",
   },
+  {
+    slug: "junior-high-english-reading-word-order",
+    title: "中学英語の英文が読めないときは語順から見直そう",
+    excerpt: "学校のテキストで読み方を確かめ、スラッシュリーディングで意味のまとまりを前から捉える練習を紹介します。",
+    publishDate: "2026-10-04",
+  },
 ];
