@@ -1,0 +1,149 @@
+# =============================================================
+# SEO 自動実装 PR の auto-merge
+# -------------------------------------------------------------
+# 対象は次をすべて満たす PR だけ（それ以外の PR には何もしない）
+#   - main 向け・このリポジトリ内のブランチ（fork 由来は対象外）
+#   - ブランチ名が seo/issue-<番号>- で始まる
+#   - 作成者が claude[bot]（seo-implement.yml の Claude GitHub App）
+#   - PR 本文に「Closes #<番号>」があり、その Issue が [SEO記事実装] ＋ seo-approved で、seo-blocked でない
+#   - 変更ファイルが記事ページ（src/pages/articles/*.astro）と src/data/articles.ts だけ
+# 満たせば seo-automation ラベルを付け、GitHub 標準の auto-merge（squash）を有効化する。
+# 実際の merge は、required check（ci-build）が成功し conflict がない時点で GitHub が行う。
+# 条件を満たさない場合は seo-blocked を付けて停止する（CI がそのラベルを検知して失敗する）。
+#
+# merge 後は元 Issue に結果を1件だけコメントし、seo-in-progress を外す（Issue は Closes で自動 close）。
+# =============================================================
+name: SEO自動merge
+
+on:
+  pull_request:
+    types: [opened, reopened, ready_for_review, closed]
+
+permissions: {}
+
+jobs:
+  enable-auto-merge:
+    name: enable-auto-merge
+    if: >-
+      github.event.action != 'closed' &&
+      github.event.pull_request.base.ref == 'main' &&
+      github.event.pull_request.head.repo.full_name == github.repository &&
+      startsWith(github.event.pull_request.head.ref, 'seo/issue-') &&
+      github.event.pull_request.user.login == 'claude[bot]' &&
+      !github.event.pull_request.draft
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: write
+      pull-requests: write
+      issues: write
+    steps:
+      - uses: actions/github-script@v9
+        with:
+          script: |
+            const { owner, repo } = context.repo;
+            const pr = context.payload.pull_request;
+            const issueNumber = Number(pr.head.ref.match(/^seo\/issue-(\d+)-/)?.[1]);
+
+            const block = async (reason) => {
+              await github.rest.issues.addLabels({ owner, repo, issue_number: pr.number, labels: ['seo-blocked'] });
+              if (issueNumber) {
+                await github.rest.issues.addLabels({ owner, repo, issue_number: issueNumber, labels: ['seo-blocked'] }).catch(() => {});
+              }
+              await github.rest.issues.createComment({
+                owner, repo, issue_number: pr.number,
+                body: `⚠️ 自動 merge の条件を満たさないため \`seo-blocked\` を付けて停止しました。\n\n- ${reason}\n\n確認後、問題なければ \`seo-blocked\` を外し、手動で merge してください。`,
+              });
+              core.setFailed(reason);
+            };
+
+            if (!issueNumber) return block('ブランチ名から Issue 番号を読み取れません');
+
+            const closesRe = new RegExp(`(^|\\s)(close[sd]?|fix(e[sd])?|resolve[sd]?)\\s+#${issueNumber}(?!\\d)`, 'i');
+            if (!closesRe.test(pr.body ?? '')) return block(`PR 本文に「Closes #${issueNumber}」がありません`);
+
+            const { data: issue } = await github.rest.issues.get({ owner, repo, issue_number: issueNumber });
+            const issueLabels = issue.labels.map((l) => (typeof l === 'string' ? l : l.name));
+            if (issue.pull_request) return block(`#${issueNumber} は Issue ではありません`);
+            if (!issue.title.startsWith('[SEO記事実装]')) return block(`#${issueNumber} のタイトルが [SEO記事実装] で始まっていません`);
+            if (!issueLabels.includes('seo-approved')) return block(`#${issueNumber} に seo-approved がありません`);
+            if (issueLabels.includes('seo-blocked')) return block(`#${issueNumber} に seo-blocked が付いています`);
+            if (issue.state !== 'open') return block(`#${issueNumber} が open ではありません`);
+
+            if (pr.labels.some((l) => l.name === 'seo-blocked')) return block('PR に seo-blocked が付いています');
+
+            const files = await github.paginate(github.rest.pulls.listFiles, { owner, repo, pull_number: pr.number, per_page: 100 });
+            const allowed = (f) =>
+              ['added', 'modified'].includes(f.status) &&
+              (/^src\/pages\/articles\/[a-z0-9-]+\.astro$/.test(f.filename) || f.filename === 'src/data/articles.ts');
+            const outside = files.filter((f) => !allowed(f));
+            if (files.length === 0) return block('変更ファイルがありません');
+            if (outside.length > 0) {
+              return block(`記事ファイル以外の変更があります: ${outside.map((f) => `${f.filename}（${f.status}）`).join(', ')}`);
+            }
+
+            await github.rest.issues.addLabels({ owner, repo, issue_number: pr.number, labels: ['seo-automation'] });
+
+            try {
+              await github.graphql(
+                `mutation($id: ID!) {
+                  enablePullRequestAutoMerge(input: { pullRequestId: $id, mergeMethod: SQUASH }) { clientMutationId }
+                }`,
+                { id: pr.node_id },
+              );
+              core.info(`PR #${pr.number} の auto-merge（squash）を有効にしました`);
+            } catch (error) {
+              // required check が既に成功済みで「待つものがない」場合は auto-merge を有効化できないため、
+              // その場合に限り直接 squash merge する（ルールセットの条件は GitHub 側で強制される）
+              if (/clean status/i.test(error.message)) {
+                await github.rest.pulls.merge({ owner, repo, pull_number: pr.number, merge_method: 'squash' });
+                core.info(`PR #${pr.number} は merge 可能な状態だったため、直接 squash merge しました`);
+              } else {
+                throw error;
+              }
+            }
+
+  report-merged:
+    name: report-merged
+    if: >-
+      github.event.action == 'closed' &&
+      github.event.pull_request.merged == true &&
+      github.event.pull_request.head.repo.full_name == github.repository &&
+      startsWith(github.event.pull_request.head.ref, 'seo/issue-') &&
+      github.event.pull_request.user.login == 'claude[bot]'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      issues: write
+      pull-requests: read
+    steps:
+      - uses: actions/github-script@v9
+        with:
+          script: |
+            const { owner, repo } = context.repo;
+            const pr = context.payload.pull_request;
+            const issueNumber = Number(pr.head.ref.match(/^seo\/issue-(\d+)-/)?.[1]);
+            if (!issueNumber) return;
+
+            const files = await github.paginate(github.rest.pulls.listFiles, { owner, repo, pull_number: pr.number, per_page: 100 });
+            const articleUrls = files
+              .map((f) => f.filename.match(/^src\/pages\/articles\/([a-z0-9-]+)\.astro$/)?.[1])
+              .filter(Boolean)
+              .map((slug) => `/articles/${slug}`);
+
+            await github.rest.issues.createComment({
+              owner, repo, issue_number: issueNumber,
+              body: [
+                `✅ PR #${pr.number} を main に squash merge しました（required check \`ci-build\` 成功後の自動 merge）。`,
+                '',
+                `- 記事: ${articleUrls.join(', ') || '（記事ページの変更なし）'}`,
+                `- merge コミット: ${pr.merge_commit_sha}`,
+              ].join('\n'),
+            });
+
+            await github.rest.issues.removeLabel({ owner, repo, issue_number: issueNumber, name: 'seo-in-progress' }).catch(() => {});
+
+            const { data: issue } = await github.rest.issues.get({ owner, repo, issue_number: issueNumber });
+            if (issue.state === 'open') {
+              await github.rest.issues.update({ owner, repo, issue_number: issueNumber, state: 'closed', state_reason: 'completed' });
+            }

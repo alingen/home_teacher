@@ -1,10 +1,11 @@
 // =============================================================
-// 記事本文の照合（npm run check:article -- <slug> --issue <番号> | --body-file <path>）
+// 記事本文の照合（npm run check:article -- <slug> --body-file <path> | --issue <番号>）
 // -------------------------------------------------------------
-// SEO担当の原稿（GitHub Issue の「本文」欄、または Markdown ファイル）と、
+// SEO記事実装 Issue の「完成原稿」欄（または原稿だけの Markdown ファイル）と、
 // npm run build で生成された記事ページの本文が一致しているかを確認します。
 //   - 見出し・段落・箇条書き・表のセルを1ブロックずつ比較します
-//   - 空白の違いと Markdown 記法（#, -, 1., **, `, [文言](URL) など）は無視します
+//   - 空白の違いと Markdown 記法（##, -, 1., **, `, [文言](URL) など）は無視します
+//   - H1（# 見出し）はページ上部に表示されるため比較対象外です
 // 一致しないブロックがあれば一覧を出し、終了コード1で終わります。
 // 表や装飾ブロックなど、組み方の都合で差分が出た場合は内容を確認したうえでPRに記載してください。
 // =============================================================
@@ -24,16 +25,32 @@ for (let i = 0; i < args.length; i++) {
 }
 
 if (!slug || (!issueNumber && !bodyFile)) {
-  console.error("使い方: npm run check:article -- <slug> --issue <Issue番号>");
-  console.error("    または: npm run check:article -- <slug> --body-file <原稿のMarkdownファイル>");
+  console.error("使い方: npm run check:article -- <slug> --body-file <Issue本文または原稿のMarkdownファイル>");
+  console.error("    または: npm run check:article -- <slug> --issue <Issue番号>（gh CLI が必要）");
   process.exit(1);
 }
 
 /**
- * Issueフォームの欄名（.github/ISSUE_TEMPLATE/seo-article.yml の label の先頭部分）。
- * 本文中の H3（### 見出し）と欄の区切りを見分けるため、欄名に一致する「### 」行だけを区切りとみなします。
+ * Issue の欄名（.github/ISSUE_TEMPLATE/seo-article.yml の label と同じ）。
+ * コードブロックの外にある「### 欄名」（または「## 欄名」）の行だけを欄の区切りとみなします。
  */
-const FORM_LABELS = ["SEOタイトル", "H1", "meta description", "slug", "公開日", "記事一覧の紹介文", "本文", "内部リンク", "CTA", "備考"];
+const FORM_LABELS = [
+  "種別",
+  "対象URL・slug",
+  "title",
+  "meta description",
+  "H1",
+  "公開日",
+  "記事一覧の紹介文",
+  "この記事を作る理由",
+  "検索意図",
+  "H2 / H3構成",
+  "完成原稿",
+  "内部リンク",
+  "CTA",
+  "実装上の注意",
+];
+const DRAFT_LABEL = "完成原稿";
 
 // ---- 原稿を取得 ------------------------------------------------
 let source;
@@ -41,26 +58,42 @@ if (issueNumber) {
   const issueBody = execFileSync("gh", ["issue", "view", issueNumber, "--json", "body", "-q", ".body"], {
     encoding: "utf8",
   });
-  source = extractIssueSection(issueBody, "本文");
+  source = extractIssueSection(issueBody, DRAFT_LABEL);
   if (source === null) {
-    console.error(`Issue #${issueNumber} に「### 本文」欄が見つかりません。`);
+    console.error(`Issue #${issueNumber} に「### ${DRAFT_LABEL}」欄が見つかりません。`);
     process.exit(1);
   }
 } else {
   const text = readFileSync(bodyFile, "utf8");
-  // Issue本文をそのまま保存したファイルなら「本文」欄だけを取り出す
-  source = extractIssueSection(text, "本文") ?? text;
+  // Issue 本文をそのまま保存したファイルなら「完成原稿」欄だけを取り出す
+  source = extractIssueSection(text, DRAFT_LABEL) ?? text;
 }
 
-/** Issueフォームの欄のうち、指定した欄名で始まる欄の中身を返す */
+/** Issue 本文から、指定した欄の中身を返す（欄を囲むコードブロックは外す） */
 function extractIssueSection(body, label) {
   const lines = body.replace(/\r\n/g, "\n").split("\n");
-  const isFormHeading = (line) => line.startsWith("### ") && FORM_LABELS.some((l) => line.slice(4).startsWith(l));
-  const start = lines.findIndex((line) => isFormHeading(line) && line.slice(4).startsWith(label));
-  if (start < 0) return null;
-  const rest = lines.slice(start + 1);
-  const end = rest.findIndex(isFormHeading);
-  return (end < 0 ? rest : rest.slice(0, end)).join("\n");
+  const headingLabel = (line) => line.match(/^#{2,3} +(.+?)\s*$/)?.[1];
+
+  // コードブロックの外にある欄見出しの位置を集める
+  const headings = [];
+  let inFence = false;
+  lines.forEach((line, i) => {
+    if (/^\s*(```|~~~)/.test(line)) inFence = !inFence;
+    else if (!inFence && FORM_LABELS.includes(headingLabel(line))) headings.push({ i, label: headingLabel(line) });
+  });
+
+  const idx = headings.findIndex((h) => h.label === label);
+  if (idx < 0) return null;
+  const endLine = headings[idx + 1]?.i ?? lines.length;
+  let section = lines.slice(headings[idx].i + 1, endLine);
+
+  // 前後の空行を除き、全体が1つのコードブロックで囲まれていれば外す
+  while (section.length && !section[0].trim()) section.shift();
+  while (section.length && !section.at(-1).trim()) section.pop();
+  if (section.length >= 2 && /^\s*(```|~~~)/.test(section[0]) && /^\s*(```|~~~)\s*$/.test(section.at(-1))) {
+    section = section.slice(1, -1);
+  }
+  return section.join("\n");
 }
 
 // ---- 原稿（Markdown）をブロックに分解 ----------------------------
@@ -76,6 +109,10 @@ function markdownBlocks(md) {
     if (!line || /^_No response_$/.test(line)) {
       flush();
       continue;
+    }
+    if (/^#\s/.test(line)) {
+      flush();
+      continue; // H1 はページ上部に表示されるため比較しない
     }
     if (/^\|.*\|$/.test(line)) {
       flush();
