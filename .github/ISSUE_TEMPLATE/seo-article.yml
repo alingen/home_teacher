@@ -1,0 +1,92 @@
+name: SEO記事実装依頼
+description: 確定済みの記事原稿をサイトに実装する依頼です（Claude が実装し、PRを作成します）
+title: "[SEO記事実装] "
+labels: ["seo-article"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        **確定済みの原稿のみ登録してください。** Claude は原稿の意味を変えずにそのまま実装します。
+        内容を確認したら `claude-implement` ラベルを付けてください。Claude が実装を始め、完了すると PR を作成します。
+
+        - 本文の見出しは `##`（H2）と `###`（H3）で書いてください。H1 は下の「H1」欄に書き、本文には含めないでください
+        - 本文中のリンクは `[リンク文言](/articles/slug)` の形で書けます
+        - 画像の追加はこのフォームでは扱いません。必要な場合は備考に書いてください
+        - このリポジトリは公開されているため、Issue の内容は誰でも閲覧できます
+
+  - type: input
+    id: seo_title
+    attributes:
+      label: SEOタイトル（title）
+      description: 検索結果やブラウザのタブに表示されるタイトル
+    validations:
+      required: true
+
+  - type: input
+    id: h1
+    attributes:
+      label: H1（ページ上部の見出し）
+      description: SEOタイトルと同じ場合も記入してください
+    validations:
+      required: true
+
+  - type: textarea
+    id: description
+    attributes:
+      label: meta description
+    validations:
+      required: true
+
+  - type: input
+    id: slug
+    attributes:
+      label: slug
+      description: 半角英小文字・数字・ハイフンのみ。URLは /articles/<slug> になります
+      placeholder: junior-high-english-reading-word-order
+    validations:
+      required: true
+
+  - type: input
+    id: publish_date
+    attributes:
+      label: 公開日（YYYY-MM-DD）
+      placeholder: "2026-10-11"
+    validations:
+      required: true
+
+  - type: input
+    id: excerpt
+    attributes:
+      label: 記事一覧の紹介文
+      description: トップページの「お役立ち記事」カードに表示する短い紹介文（50〜60字程度）
+    validations:
+      required: true
+
+  - type: textarea
+    id: body
+    attributes:
+      label: 本文
+      description: Markdown で記入（## が H2、### が H3）。H1 は含めないでください
+    validations:
+      required: true
+
+  - type: textarea
+    id: internal_links
+    attributes:
+      label: 内部リンク
+      description: 本文中に書いたもの以外で追加するリンク。「リンク文言 → リンク先」と置き場所を1行ずつ書いてください
+      placeholder: |
+        記事末尾：福岡の家庭教師の料金について読む → /articles/home-teacher-fees-fukuoka
+
+  - type: textarea
+    id: cta
+    attributes:
+      label: CTA
+      description: 記事末尾に置く案内文・リンク文言とリンク先。記事下の共通LINEボタンは全記事共通のため変更しません
+      placeholder: |
+        現在の募集状況・指導内容を確認する → /
+
+  - type: textarea
+    id: notes
+    attributes:
+      label: 備考（任意）

@@ -9,7 +9,9 @@
     "build": "astro check && astro build",
     "preview": "astro preview",
     "check": "astro check",
-    "sync": "astro sync"
+    "sync": "astro sync",
+    "check:links": "node scripts/check-internal-links.mjs",
+    "check:article": "node scripts/check-article-text.mjs"
   },
   "dependencies": {
     "astro": "^5.18.2",
