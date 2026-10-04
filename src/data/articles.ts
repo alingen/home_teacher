@@ -33,10 +33,4 @@ export const articles: ArticleMeta[] = [
     excerpt: "学校のテキストで読み方を確かめ、スラッシュリーディングで意味のまとまりを前から捉える練習を紹介します。",
     publishDate: "2026-10-04",
   },
-  {
-    slug: "automation-test",
-    title: "自動公開の動作確認ページ",
-    excerpt: "記事の自動公開の動作確認用ページです。確認後に削除します。",
-    publishDate: "2026-10-04",
-  },
 ];
