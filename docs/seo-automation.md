@@ -14,7 +14,7 @@
 7. Claude Code が自動実装する（`seo-in-progress` が付く）
 8. Claude Code が `seo/issue-<番号>-...` ブランチから main 向け PR を作成する
 9. CI（`ci-build`: npm ci → npm run build → npm run check:links）が走る
-10. CI が成功すると自動で squash merge される（GitHub 標準の auto-merge）
+10. CI が成功すると、SEO自動merge ワークフローが条件を検証して squash merge する
 11. 元 Issue が自動で close され、結果が1件コメントされる
 
 ## 仕組み
@@ -22,7 +22,7 @@
 | ファイル | 役割 |
 |---|---|
 | `.github/workflows/seo-implement.yml` | `seo-approved` 付与で起動。権限確認 → Claude Code が実装・PR 作成。PR が作られなければ `seo-blocked` |
-| `.github/workflows/seo-automerge.yml` | SEO 自動実装 PR だけを検証して auto-merge（squash）を有効化。merge 後に Issue へ結果をコメント |
+| `.github/workflows/seo-automerge.yml` | CI 成功時に、SEO 自動実装 PR だけを検証して squash merge。続けて Issue へ結果をコメント・close し、作業ブランチを削除 |
 | `.github/workflows/seo-ci-fix.yml` | SEO 自動実装 PR の CI が失敗したら Claude が修正を試みる（最大2回）。直らなければ `seo-blocked` |
 | `.github/workflows/ci.yml` | main 向け PR の必須チェック `ci-build`。`seo-blocked` ラベル付きの PR は失敗させる |
 | `CLAUDE.md` | Claude Code が従う実装ルール |
@@ -36,11 +36,14 @@
 ### 自動 merge の条件（すべて必須）
 
 - main 向け・このリポジトリ内のブランチで、ブランチ名が `seo/issue-<番号>-` で始まる
-- PR の作成者が `claude[bot]`（Claude GitHub App）
+- PR の作成者が `claude[bot]`（Claude GitHub App）で、draft でない
 - PR 本文に `Closes #<番号>` があり、その Issue が `[SEO記事実装]`＋`seo-approved` で open、`seo-blocked` なし
 - PR に `seo-blocked` がない
-- 変更ファイルが `src/pages/articles/*.astro` と `src/data/articles.ts` だけ
-- required check `ci-build` が成功し、conflict がない（GitHub が判定）
+- 変更ファイルが `src/pages/articles/*.astro` と `src/data/articles.ts` の追加・変更だけ
+- PR の最新コミットで required check `ci-build` が成功し、conflict がない（merge 時に main のルールセットで GitHub が強制）
+
+GitHub 標準の auto-merge は使っていません。`GITHUB_TOKEN` で有効化した auto-merge では、`Closes` による Issue の自動 close・ブランチの自動削除・merge 後のワークフローが動かないためです（動作確認で判明）。代わりに、CI 成功を受けて SEO自動merge ワークフローが merge し、merge 後の処理も行います。
+なお、この merge は `GITHUB_TOKEN` によるため、main への merge コミットでは CI（push）は再実行されません（同じ内容を PR 上の CI で確認済み）。Cloudflare の本番デプロイは通常どおり動きます。
 
 ## ラベル
 
@@ -62,13 +65,13 @@
 1. Issue（または PR）のコメントで、停止した理由と実行ログを確認する
 2. 原稿や Issue の問題なら、Issue 本文を直す（必要なら Dots に作り直してもらう）
 3. 再実行：Issue の `seo-blocked` を外し、`seo-approved` を **外してから付け直す**（新しいブランチと PR で実装し直す）
-   - PR だけ止まっている場合は、内容を確認して PR の `seo-blocked` を外せば CI が再実行され、成功すれば merge される（auto-merge が外れていたら PR 画面で有効にするか、手動で squash merge する）
+   - PR が止まっている場合は、内容を確認して PR と Issue の両方から `seo-blocked` を外す。CI が再実行され、成功すれば自動で merge される（手動で squash merge してもよい。その場合は Issue の close とブランチ削除も手動で行う）
 4. 不要になった PR は close する（ブランチは merge 時のみ自動削除。close した場合は PR 画面から削除する）
 
 ## 自動化を止めたい場合
 
 - **新しい実装を止める**：Actions → 「SEO記事実装」→ ⋯ → Disable workflow（`gh workflow disable seo-implement.yml`）
-- **自動 merge を止める**：Actions → 「SEO自動merge」を Disable。進行中の PR は PR 画面で「Disable auto-merge」
+- **自動 merge を止める**：Actions → 「SEO自動merge」を Disable（`gh workflow disable seo-automerge.yml`）
 - **特定の PR だけ止める**：PR に `seo-blocked` を付ける
 - **完全に止める**：上記に加え、Settings → Secrets から `CLAUDE_CODE_OAUTH_TOKEN` を削除する
 

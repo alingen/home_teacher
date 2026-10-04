@@ -3,7 +3,7 @@
 # -------------------------------------------------------------
 # CI（ci-build）が失敗したとき、対象が SEO 自動実装 PR（seo/issue-*、作成者 claude[bot]、seo-blocked なし）なら、
 # Claude が原因を確認し、記事ファイルの範囲で安全に直せる場合だけ同じブランチへ push する（CI が再実行され、
-# 成功すれば auto-merge される）。
+# 成功すれば seo-automerge.yml が merge する）。
 #
 # 無限に繰り返さないよう、そのブランチの CI 失敗が 3 回に達したら（＝修正 2 回でも直らなければ）
 # seo-blocked を付けて停止する。Claude が修正を push しなかった場合も seo-blocked を付けて停止する。
