@@ -4,23 +4,33 @@
 // 色自体はサイト全体のブランドカラー（ティール）＋控えめなアラート色にとどめています。
 // 表示内容は src/data/availability.ts を編集するだけで更新できます。
 import { availability } from "../data/availability";
-
-const statusModifier = availability.hasVacancy ? "is-open" : "is-full";
 ---
 
 <section class="availability" aria-label="受付状況のお知らせ">
   <div class="container">
-    <div class={`availability-card ${statusModifier}`}>
+    <div class="availability-card">
       <p class="availability-card__heading">現在の受付状況（{availability.updatedOnLabel}）</p>
-      {availability.summary && <p class="availability-card__summary">{availability.summary}</p>}
+
+      <dl class="availability-card__statuses">
+        {
+          availability.statuses.map((status) => (
+            <div class="availability-card__status">
+              <dt>{status.label}：</dt>
+              <dd class={`is-${status.tone}`}>{status.value}</dd>
+            </div>
+          ))
+        }
+      </dl>
+
       {
-        availability.statusLinesLabel && (
-          <p class="availability-card__status-label">{availability.statusLinesLabel}</p>
+        availability.messages.length > 0 && (
+          <div class="availability-card__messages">
+            {availability.messages.map((message) => (
+              <p>{message}</p>
+            ))}
+          </div>
         )
       }
-      <ul class="availability-card__status-list">
-        {availability.statusLines.map((line) => <li>{line}</li>)}
-      </ul>
 
       {
         availability.notes.length > 0 && (
@@ -67,48 +77,71 @@ const statusModifier = availability.hasVacancy ? "is-open" : "is-full";
     border-bottom: 1px dashed var(--color-brand);
   }
 
-  .availability-card__summary {
-    margin-top: 16px;
-    font-size: 1rem;
-    font-weight: 700;
-    color: var(--color-brand-dark);
-  }
-
-  .availability-card__status-label {
-    margin-top: 14px;
-    font-size: 0.8rem;
-    font-weight: 700;
-    color: var(--color-text-muted);
-  }
-
-  .availability-card__status-list {
+  .availability-card__statuses {
     display: grid;
-    gap: 4px;
+    gap: 6px;
     margin-top: 18px;
   }
 
-  .availability-card__status-label + .availability-card__status-list {
-    margin-top: 4px;
+  /* 「ラベル：値」を1行に。狭い画面では値だけ次の行に回る */
+  .availability-card__status {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: baseline;
+    column-gap: 2px;
   }
 
-  .availability-card__status-list li {
-    font-size: 1.4rem;
+  .availability-card__status dt {
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: var(--color-text);
+  }
+
+  .availability-card__status dd {
+    margin: 0;
+    font-size: 1.25rem;
     font-weight: 800;
     line-height: 1.5;
   }
 
-  .availability-card.is-full .availability-card__status-list li {
+  @media (max-width: 400px) {
+    .availability-card__status dd {
+      font-size: 1.1rem;
+    }
+  }
+
+  .availability-card__status dd.is-closed {
     color: #b3434b;
   }
 
-  .availability-card.is-open .availability-card__status-list li {
+  .availability-card__status dd.is-open {
     color: var(--color-brand-dark);
   }
 
+  .availability-card__status dd.is-info {
+    color: var(--color-text);
+  }
+
+  .availability-card__messages {
+    display: grid;
+    gap: 10px;
+    margin-top: 20px;
+    padding-top: 18px;
+    border-top: 1px dashed var(--color-brand);
+    text-align: left;
+  }
+
+  .availability-card__messages p {
+    font-size: 0.9rem;
+    line-height: 1.9;
+    color: var(--color-text);
+  }
+
   .availability-card__notes {
-    display: inline-grid;
+    display: grid;
     gap: 6px;
-    margin-top: 22px;
+    margin-top: 14px;
     text-align: left;
   }
 
@@ -121,7 +154,7 @@ const statusModifier = availability.hasVacancy ? "is-open" : "is-full";
   }
 
   .availability-card__notes li::before {
-    content: "・";
+    content: "※";
     position: absolute;
     left: 0;
   }
