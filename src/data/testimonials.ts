@@ -7,7 +7,7 @@ export interface Testimonial {
   slug?: string;
   student: string[];
   parent: string[];
-  /** 生徒・保護者の声に対する、かず先生からのメッセージ */
+  /** 生徒・保護者の声に対する、いけ先生からのメッセージ */
   teacherMessage: string[];
   /** 手書きのお手紙など、写真がある場合のみ設定（public/ 以下のパス） */
   photoSrc?: string;
