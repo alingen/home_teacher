@@ -1,5 +1,5 @@
 ---
-// ファーストビュー直下に表示する「空き状況」のお知らせ。
+// ファーストビュー直下に表示する「受付状況」のお知らせ。
 // 集客に直結する重要な情報のため、他セクションよりも目立つ配色・サイズにしていますが、
 // 色自体はサイト全体のブランドカラー（ティール）＋控えめなアラート色にとどめています。
 // 表示内容は src/data/availability.ts を編集するだけで更新できます。
@@ -8,10 +8,16 @@ import { availability } from "../data/availability";
 const statusModifier = availability.hasVacancy ? "is-open" : "is-full";
 ---
 
-<section class="availability" aria-label="空き状況のお知らせ">
+<section class="availability" aria-label="受付状況のお知らせ">
   <div class="container">
     <div class={`availability-card ${statusModifier}`}>
-      <p class="availability-card__heading">現在の空き状況（{availability.updatedOnLabel}）</p>
+      <p class="availability-card__heading">現在の受付状況（{availability.updatedOnLabel}）</p>
+      {availability.summary && <p class="availability-card__summary">{availability.summary}</p>}
+      {
+        availability.statusLinesLabel && (
+          <p class="availability-card__status-label">{availability.statusLinesLabel}</p>
+        )
+      }
       <ul class="availability-card__status-list">
         {availability.statusLines.map((line) => <li>{line}</li>)}
       </ul>
@@ -61,10 +67,28 @@ const statusModifier = availability.hasVacancy ? "is-open" : "is-full";
     border-bottom: 1px dashed var(--color-brand);
   }
 
+  .availability-card__summary {
+    margin-top: 16px;
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--color-brand-dark);
+  }
+
+  .availability-card__status-label {
+    margin-top: 14px;
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: var(--color-text-muted);
+  }
+
   .availability-card__status-list {
     display: grid;
     gap: 4px;
     margin-top: 18px;
+  }
+
+  .availability-card__status-label + .availability-card__status-list {
+    margin-top: 4px;
   }
 
   .availability-card__status-list li {
