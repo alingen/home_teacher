@@ -4,6 +4,9 @@
 // 記事を追加・変更したい場合は data ファイルと src/pages/articles/ 配下のページを編集してください。
 import SectionHeading from "./SectionHeading.astro";
 import { articles } from "../data/articles";
+
+// 公開日の新しい順に表示する（publishDate は YYYY-MM-DD なので文字列比較で並べられる）
+const sortedArticles = [...articles].sort((a, b) => b.publishDate.localeCompare(a.publishDate));
 ---
 
 <section class="section" aria-labelledby="articles-heading">
@@ -12,7 +15,7 @@ import { articles } from "../data/articles";
 
     <ul class="grid grid--3 article-list">
       {
-        articles.map((article) => (
+        sortedArticles.map((article) => (
           <li class="card article-card">
             <a href={`/articles/${article.slug}`} class="article-card__link">
               <p class="article-card__title">{article.title}</p>
