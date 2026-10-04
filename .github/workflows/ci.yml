@@ -4,6 +4,9 @@
 # チェック名 `ci-build` を main のルールセットで required status check に指定しています。
 # job 名を変える場合はルールセット側も合わせて変更してください。
 #
+# SEO 自動実装 PR（seo/issue-*）では、元 Issue の承認稿との照合（本文・リンク先・メタ情報、
+# 承認後の Issue 編集の有無）も必須チェックとして行う（scripts/check-seo-pr.mjs）。
+#
 # 注意: このジョブには job レベルの if を付けないこと。
 # スキップされたジョブは required check を「成功」扱いで満たしてしまうため、
 # どのイベントでも必ず最後まで実行する。
@@ -20,6 +23,7 @@ on:
 
 permissions:
   contents: read
+  issues: read # 承認稿（元 Issue）の取得
 
 jobs:
   build:
@@ -47,3 +51,10 @@ jobs:
       - run: npm run build
 
       - run: npm run check:links
+
+      - name: 承認稿との照合（seo/issue-* の PR のみ）
+        if: github.event_name == 'pull_request' && startsWith(github.head_ref, 'seo/issue-')
+        env:
+          GH_TOKEN: ${{ github.token }}
+          HEAD_REF: ${{ github.head_ref }}
+        run: npm run check:seo-pr

@@ -25,7 +25,7 @@ SEO 戦略やテーマの再検討、本文の書き直しは Claude Code の担
 - 実績・経験・料金・サービス内容を追加しない。事実関係を推測で補わない。存在しない指導実績や生徒事例を作らない
 - 既存記事の構造・デザイン・コンポーネントを優先して再利用する。装飾が必要なら既存記事の部分スタイル（`worked-example`、`reading-example`）にならい、そのページの `<style>` 内で完結させる
 - PC・スマホ双方で崩れないようにする。375px 幅で長い英文・表・固定幅の要素がはみ出さないか、意味のまとまりの途中で改行されないかを確認する。表は `<div class="table-scroll"><table>` で組む
-- 指定された内部リンク・CTA を、指定の位置に実装する。記事下の共通 LINE ボタンは変えない
+- 指定された内部リンク・CTA を、指定の位置に実装する。リンクの文言とリンク先は承認稿のとおりにし、承認稿にないリンクは足さない。記事下の共通 LINE ボタンは変えない
 - slug の重複を確認する。title・description などの metadata を ArticleLayout に渡す
 - 記事一覧（`src/data/articles.ts`）に正しく載せる。sitemap などの自動生成の仕組みは変えない
 - 変更してよいのは原則 `src/pages/articles/**` と `src/data/articles.ts` だけ。関係のない既存ページ・LP・料金・レイアウト・設定は変えない
@@ -48,7 +48,7 @@ SEO 戦略やテーマの再検討、本文の書き直しは Claude Code の担
 1. Issue の必須項目を確認する（形式は `docs/seo-automation.md`）。新規は 種別・slug・title・meta description・H1・公開日・記事一覧の紹介文・完成原稿、リライトは 種別・slug・完成原稿 が必須
 2. 新規なら `src/pages/articles/<slug>.astro` と `src/data/articles.ts` に同じ slug がないこと、リライトなら対象が存在することを確認する
 3. 記事ページを作成（リライトは本文を差し替え）し、`src/data/articles.ts` を更新する
-4. 検証する（下記）。`npm run check:article` で不一致が出たら原稿どおりに実装を直す。表など組み方の都合で残る差分は、内容が同じことを確かめて PR に書く
+4. 検証する（下記）。`npm run check:article` で不一致が出たら承認稿どおりに実装を直す（Issue 側は変えない）。直せない場合は停止する
 5. コミットして push し、main 向けの PR を作る（下記の形式）
 
 ## 検証
@@ -56,7 +56,8 @@ SEO 戦略やテーマの再検討、本文の書き直しは Claude Code の担
 - `npm ci`
 - `npm run build` … `astro check`（型チェック）＋ `astro build`
 - `npm run check:links` … ビルド結果の内部リンク切れ（ページ・`#id`）を検出
-- `npm run check:article -- <slug> --body-file <Issue本文を保存したファイル>`（または `--issue <番号>`）… ビルドした記事本文が完成原稿と一致するか照合
+- `npm run check:article -- --body-file <Issue本文を保存したファイル>`（または `--issue <番号>`）… ビルドした記事を承認稿と照合する。本文・リンク（文言とリンク先の組が過不足なく一致）・メタ情報（title・meta description・H1・公開日・記事一覧の紹介文）
+- `npm run check:seo-pr` … CI 用。`seo/issue-*` の PR で、元 Issue が承認済みで承認後に編集されていないことを確認し、上の照合を行う（`ci-build` の必須チェックに含まれる）
 - lint・テストは未導入
 
 ## Git 運用
