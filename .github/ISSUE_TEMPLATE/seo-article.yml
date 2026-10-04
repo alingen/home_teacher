@@ -10,6 +10,7 @@ body:
     attributes:
       value: |
         **承認済みの原稿だけを登録してください。** `seo-approved` ラベルを付けると Claude Code が実装を開始し、CI 成功後に自動で main へ merge（公開）されます。
+        実装は承認稿（この Issue）と本文・リンク先・メタ情報まで照合されます。`seo-approved` を付けた後に本文を編集すると CI が失敗するので、直したときは `seo-approved` を付け直してください。
         このリポジトリは公開されているため、Issue の内容は誰でも閲覧できます。
 
   - type: dropdown
@@ -101,7 +102,7 @@ body:
     id: internal_links
     attributes:
       label: 内部リンク
-      description: 本文中に書いたもの以外に追加するリンク。「置き場所：リンク文言 → リンク先」を1行ずつ
+      description: 完成原稿の外に置くリンク。「置き場所：リンク文言 → リンク先」を1行ずつ（リンク先も照合されます）。なければ「なし」。リライトでも「変更なし」は使わず、ページに置くリンクをすべて書く
       placeholder: |
         記事末尾：福岡の家庭教師の料金について読む → /articles/home-teacher-fees-fukuoka
 
@@ -109,7 +110,7 @@ body:
     id: cta
     attributes:
       label: CTA
-      description: 記事末尾に置く案内文・リンク文言とリンク先。記事下の共通LINEボタンは変更しません
+      description: 記事末尾に置くリンク。「置き場所：リンク文言 → リンク先」を1行ずつ（リンク先も照合されます）。なければ「なし」。記事下の共通LINEボタンは変更しません
       placeholder: |
         現在の募集状況・指導内容を確認する → /
 

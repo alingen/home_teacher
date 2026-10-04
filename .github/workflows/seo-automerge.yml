@@ -7,8 +7,11 @@
 #   - 作成者が claude[bot]（seo-implement.yml の Claude GitHub App）で、draft でない
 #   - CI が成功したのが PR の最新コミット
 #   - PR 本文に「Closes #<番号>」があり、その Issue が [SEO記事実装] ＋ seo-approved で open、seo-blocked なし
+#   - seo-approved の付与後に Issue 本文が編集されていない
 #   - PR に seo-blocked がない
-#   - 変更ファイルが記事ページ（src/pages/articles/*.astro）と src/data/articles.ts の追加・変更だけ
+#   - 変更ファイルが記事ページ（src/pages/articles/*.astro）と src/data/articles.ts の追加・変更だけで、
+#     種別と合っている（新規記事＝記事ページ1件の追加、リライト＝既存記事ページの変更）
+# 承認稿との本文・リンク先・メタ情報の照合は CI（ci-build）の必須チェックで行う（scripts/check-seo-pr.mjs）。
 # merge 時の required check（ci-build）・conflict の判定は main のルールセットにより GitHub が強制する。
 # 条件を満たさない場合は seo-blocked を付けて停止する。
 #
@@ -86,6 +89,27 @@ jobs:
 
             if (pr.labels.some((l) => l.name === 'seo-blocked')) return block('PR に seo-blocked が付いています');
 
+            // 承認後に Issue 本文が編集されていないこと（CI 成功から merge までの間の改変も防ぐ）
+            const { repository } = await github.graphql(
+              `query($owner: String!, $repo: String!, $number: Int!) {
+                repository(owner: $owner, name: $repo) {
+                  issue(number: $number) {
+                    lastEditedAt
+                    timelineItems(itemTypes: [LABELED_EVENT], last: 100) {
+                      nodes { ... on LabeledEvent { createdAt label { name } } }
+                    }
+                  }
+                }
+              }`,
+              { owner, repo, number: issueNumber },
+            );
+            const approvedAt = repository.issue.timelineItems.nodes
+              .filter((n) => n.label?.name === 'seo-approved').map((n) => n.createdAt).sort().at(-1);
+            if (!approvedAt) return block(`#${issueNumber} で seo-approved を付けた記録が見つかりません`);
+            if (repository.issue.lastEditedAt && repository.issue.lastEditedAt > approvedAt) {
+              return block(`#${issueNumber} の本文が seo-approved の付与後に編集されています。内容を確認し、seo-approved を付け直してください`);
+            }
+
             const files = await github.paginate(github.rest.pulls.listFiles, { owner, repo, pull_number: pr.number, per_page: 100 });
             const allowed = (f) =>
               ['added', 'modified'].includes(f.status) &&
@@ -95,6 +119,17 @@ jobs:
             if (outside.length > 0) {
               return block(`記事ファイル以外の変更があります: ${outside.map((f) => `${f.filename}（${f.status}）`).join(', ')}`);
             }
+
+            // 種別と変更内容が合っていること（新規記事＝記事ページ1件の追加、リライト＝記事ページの変更）
+            const kind = (issue.body ?? '').match(/^#{2,3} +種別\s*\n+\s*(\S+)/m)?.[1];
+            const pages = files.filter((f) => f.filename.startsWith('src/pages/articles/'));
+            if (kind === '新規記事' && !(pages.length === 1 && pages[0].status === 'added')) {
+              return block('種別は「新規記事」ですが、記事ページ1件の追加になっていません');
+            }
+            if (kind === 'リライト' && !(pages.length >= 1 && pages.every((f) => f.status === 'modified'))) {
+              return block('種別は「リライト」ですが、既存の記事ページの変更になっていません');
+            }
+            if (kind !== '新規記事' && kind !== 'リライト') return block(`#${issueNumber} の種別を読み取れません（${kind ?? 'なし'}）`);
 
             await github.rest.issues.addLabels({ owner, repo, issue_number: pr.number, labels: ['seo-automation'] });
 

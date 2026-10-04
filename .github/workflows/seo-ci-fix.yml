@@ -120,6 +120,7 @@ jobs:
             失敗したジョブのログは ${{ runner.temp }}/ci-failure.log にあります。CLAUDE.md のルールに従って原因を確認してください。
 
             - 記事ファイル（src/pages/articles/**、src/data/articles.ts）の実装ミスで、原稿の意味を変えずに直せる場合だけ修正してください。
+              「承認稿との照合」で失敗している場合は、実装を承認稿（元 Issue）のとおりに直してください。Issue 側を変える必要がある場合は直さずに終了してください。
               npm run build と npm run check:links が通ることを確認してから、コミットして `git push origin HEAD` で同じブランチに push してください。
             - 原稿の意味を変える必要がある、記事以外のファイルや既存コードの問題、CI 環境の問題、原因が不明、のいずれかに当たる場合は、
               何も push せずに終了してください（ワークフローが seo-blocked を付けて人間に引き継ぎます）。
