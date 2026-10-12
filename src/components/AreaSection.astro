@@ -7,13 +7,13 @@ import { stations } from "../data/areas";
   <div class="container">
     <SectionHeading
       eyebrow="対応エリア"
-      title="福岡市地下鉄空港線沿線を中心に訪問"
-      description="姪浜〜福岡空港の各駅周辺を中心にご自宅へ伺います。自転車で訪問できる範囲にも対応いたします。"
+      title="福岡市内の訪問指導をご相談いただけます"
+      description="福岡市内の訪問指導についてご相談いただけます。訪問先・ご希望の日時・指導内容を伺い、対応可否をご案内します。"
       id="area-heading"
     />
 
     <div class="area-layout">
-      <ol class="subway-line" aria-label="対応エリア（福岡市地下鉄空港線 姪浜〜福岡空港）">
+      <ol class="subway-line" aria-label="地域の例（福岡市地下鉄空港線の駅 姪浜〜福岡空港）">
         {
           stations.map((station, index) => {
             const isTerminal = index === 0 || index === stations.length - 1;
@@ -30,9 +30,9 @@ import { stations } from "../data/areas";
 
       <div class="area-note">
         <p>
-          上記は主な対応エリアの目安です。地下鉄空港線沿線に限らず、<strong>自転車で伺える範囲</strong>にも対応しています。
+          路線図の駅は地域の一例です。駅の近くでも、訪問先やご希望の日時によってはお引き受けできない場合があります。
         </p>
-        <p class="area-note__emphasis">記載エリア以外でも、まずはお気軽にご相談ください。</p>
+        <p class="area-note__emphasis">記載のない福岡市内の地域からも、お気軽にご相談ください。</p>
       </div>
     </div>
   </div>
