@@ -2,7 +2,6 @@
 import "../styles/global.css";
 import Analytics from "../components/Analytics.astro";
 import { site } from "../config/site";
-import { stations } from "../data/areas";
 
 interface Props {
   title?: string;
@@ -28,10 +27,7 @@ const structuredData = {
     addressRegion: "福岡県",
     addressCountry: "JP",
   },
-  areaServed: [
-    { "@type": "City", name: "福岡市" },
-    ...stations.map((station) => ({ "@type": "Place", name: `${station.name}駅周辺` })),
-  ],
+  areaServed: [{ "@type": "City", name: "福岡市" }],
   makesOffer: {
     "@type": "Offer",
     itemOffered: {
