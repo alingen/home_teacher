@@ -11,8 +11,8 @@ export interface ArticleMeta {
 export const articles: ArticleMeta[] = [
   {
     slug: "how-to-choose-home-teacher-fukuoka",
-    title: "福岡市で中学生の家庭教師を選ぶ5つのポイント",
-    excerpt: "個人契約と家庭教師センターの違いや、体験授業で確認したいポイントを解説します。",
+    title: "福岡市で個人契約の家庭教師を選ぶには｜センターとの違いと確認点",
+    excerpt: "個人契約と家庭教師センターの違い、料金の比べ方、支払い・振替・解約など契約前に確認したい条件を解説します。",
     publishDate: "2026-08-27",
   },
   {
